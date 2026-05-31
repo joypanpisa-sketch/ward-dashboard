@@ -79,13 +79,26 @@
 <body class="text-slate-800 h-screen flex overflow-hidden antialiased selection:bg-primary selection:text-white">
 
     <!-- Premium Toast Notification -->
-    <div id="toast" class="fixed top-6 right-6 z-[80] transform translate-x-full opacity-0 transition-all duration-400 flex items-start gap-4 bg-white/95 backdrop-blur-md border border-slate-100 shadow-float rounded-2xl p-5 min-w-[320px] no-print">
+    <div id="toast" class="fixed top-6 right-6 z-[120] transform translate-x-full opacity-0 transition-all duration-400 flex items-start gap-4 bg-white/95 backdrop-blur-md border border-slate-100 shadow-float rounded-2xl p-5 min-w-[320px] no-print">
         <div id="toast-icon" class="shrink-0 mt-0.5"></div>
         <div class="flex-1">
             <h4 class="text-base font-bold text-slate-800 leading-tight" id="toast-title">สำเร็จ</h4>
             <p class="text-sm text-slate-500 mt-1" id="toast-message">-</p>
         </div>
         <button onclick="window.closeToast()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[150] p-4 no-print opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 text-center p-8">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">ยืนยันการทำรายการ?</h3>
+            <p class="text-sm text-slate-500 mb-8" id="confirm-msg">คุณต้องการลบข้อมูลนี้ใช่หรือไม่?</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="window.closeModal('confirmModal')" class="px-6 py-2.5 text-base font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors flex-1">ยกเลิก</button>
+                <button onclick="window.executeAction()" class="px-6 py-2.5 text-base font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition-colors shadow-md flex-1">ยืนยัน</button>
+            </div>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -113,7 +126,6 @@
             </nav>
         </div>
 
-        <!-- User Profile Area -->
         <div class="p-5 m-5 bg-white/5 rounded-2xl flex items-center justify-center lg:justify-start gap-4 border border-white/5">
             <img src="https://ui-avatars.com/api/?name=Ward+6&background=0D8B93&color=fff" class="w-12 h-12 rounded-full border-2 border-white/10 shrink-0" alt="Profile">
             <div class="hidden lg:block flex-1 min-w-0">
@@ -508,6 +520,7 @@
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
     </datalist>
 
+    <!-- Application Script (Modular & Reliable) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -525,14 +538,56 @@
         window.lineChartInstance = null;
         window.diagChartInstance = null;
 
+        // Ensure Icons load
         lucide.createIcons();
 
-        // Helpers
-        window.openModal = (id) => { const el = document.getElementById(id); if (el) { el.classList.remove('hidden'); setTimeout(() => { el.classList.remove('opacity-0'); el.children[0].classList.remove('scale-95'); }, 10); } };
-        window.closeModal = (id) => { const el = document.getElementById(id); if (el) { el.classList.add('opacity-0'); el.children[0].classList.add('scale-95'); setTimeout(() => { el.classList.add('hidden'); const form = document.getElementById(id.replace('Modal','Form')); if(form) form.reset(); }, 300); } };
-        window.showToast = (title, msg, type='success') => { const toast = document.getElementById('toast'); if(!toast) return; document.getElementById('toast-title').innerText = title; document.getElementById('toast-message').innerText = msg; const tIcon = document.getElementById('toast-icon'); if(tIcon) { tIcon.innerHTML = type==='error'?'<i data-lucide="alert-circle" class="w-6 h-6 text-rose-600"></i>':'<i data-lucide="check-circle-2" class="w-6 h-6 text-[#008290]"></i>'; tIcon.className = type==='error'?'bg-rose-100 p-3 rounded-full':'bg-teal-50 p-3 rounded-full'; } lucide.createIcons(); toast.classList.remove('translate-x-full', 'opacity-0'); setTimeout(() => toast.classList.add('translate-x-full', 'opacity-0'), 4000); };
-        window.closeToast = () => { document.getElementById('toast')?.classList.add('translate-x-full', 'opacity-0'); };
-        
+        // -------------------------------------------------------------------
+        // 1. UI & Modal Helpers
+        // -------------------------------------------------------------------
+        window.openModal = (id) => { 
+            const el = document.getElementById(id); 
+            if (el) {
+                el.classList.remove('hidden');
+                setTimeout(() => {
+                    el.classList.remove('opacity-0');
+                    if (el.children[0]) el.children[0].classList.remove('scale-95');
+                }, 10);
+            }
+        };
+
+        window.closeModal = (id) => { 
+            const el = document.getElementById(id); 
+            if (el) {
+                el.classList.add('opacity-0');
+                if (el.children[0]) el.children[0].classList.add('scale-95');
+                setTimeout(() => {
+                    el.classList.add('hidden');
+                    const form = document.getElementById(id.replace('Modal','Form')); 
+                    if(form) form.reset(); 
+                }, 300);
+            }
+        };
+
+        window.showToast = (title, msg, type='success') => {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            document.getElementById('toast-title').innerText = title; 
+            document.getElementById('toast-message').innerText = msg;
+            
+            const tIcon = document.getElementById('toast-icon');
+            if(tIcon) {
+                tIcon.innerHTML = type==='error'?'<i data-lucide="alert-circle" class="w-6 h-6 text-rose-600"></i>':'<i data-lucide="check-circle-2" class="w-6 h-6 text-[#008290]"></i>';
+                tIcon.className = type==='error'?'bg-rose-100 p-3 rounded-full':'bg-teal-50 p-3 rounded-full';
+            }
+            lucide.createIcons(); 
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-x-full', 'opacity-0'), 4000);
+        };
+
+        window.closeToast = () => {
+            document.getElementById('toast')?.classList.add('translate-x-full', 'opacity-0');
+        };
+
         window.switchMenu = (menuId) => {
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById(`menu-${menuId}`);
@@ -573,19 +628,30 @@
             const type = document.querySelector('input[name="addType"]:checked')?.value;
             const newDiv = document.getElementById('source-new-div');
             const transDiv = document.getElementById('source-transfer-div');
-            if(type === 'IN_TRANSFER') { if(newDiv) newDiv.classList.add('hidden'); if(transDiv) transDiv.classList.remove('hidden'); } 
-            else { if(newDiv) newDiv.classList.remove('hidden'); if(transDiv) transDiv.classList.add('hidden'); }
+            if(type === 'IN_TRANSFER') {
+                if(newDiv) newDiv.classList.add('hidden');
+                if(transDiv) transDiv.classList.remove('hidden');
+            } else {
+                if(newDiv) newDiv.classList.remove('hidden');
+                if(transDiv) transDiv.classList.add('hidden');
+            }
         };
+
         window.toggleTransferSpecify = () => {
             const select = document.getElementById('addReasonTransferSelect')?.value;
             const input = document.getElementById('addReasonSpecify');
             if(select === 'อื่นๆ' && input) { input.classList.remove('hidden'); input.required = true; }
             else if(input) { input.classList.add('hidden'); input.required = false; }
         };
+
         window.toggleQaSelectors = () => {
             const val = document.querySelector('input[name="qaAction"]:checked')?.value;
             const el = document.getElementById('qa-group-selector');
-            if(val === 'CHANGE_GROUP') { if (el) el.classList.remove('hidden'); } else { if (el) el.classList.add('hidden'); }
+            if(val === 'CHANGE_GROUP') { 
+                if (el) el.classList.remove('hidden'); 
+            } else { 
+                if (el) el.classList.add('hidden'); 
+            }
         };
 
         // Date Filter Logic
@@ -604,6 +670,9 @@
             return true;
         }
 
+        // -------------------------------------------------------------------
+        // 2. Data Processing Architecture (Patient Flow)
+        // -------------------------------------------------------------------
         window.computePatientFlow = () => {
             const map = {};
             const sorted = [...window.logs].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -618,31 +687,48 @@
                 } else if(log.action === 'CHANGE_GROUP') {
                     if(map[log.hn]) map[log.hn].group = log.group;
                 } else {
-                    map[log.hn] = {...log};
+                    map[log.hn] = {...log}; // IN_NEW / IN_TRANSFER
                 }
             });
 
             const active = Object.values(map).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            const admittedLogs = window.logs.filter(l => ['IN_NEW', 'IN_TRANSFER'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            const discharged = window.logs.filter(l => ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const admittedLogs = window.logs.filter(l => ['IN_NEW', 'IN_TRANSFER'].includes(l.action))
+                                   .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const discharged = window.logs.filter(l => ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action))
+                                   .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             return { active, admittedLogs, discharged };
         };
 
+        // -------------------------------------------------------------------
+        // 3. UI Update Engine
+        // -------------------------------------------------------------------
         window.updateDashboard = () => {
             const { active, admittedLogs, discharged } = window.computePatientFlow();
             const today = new Date().toISOString().split('T')[0];
+
             const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
             const setWd = (id, val) => { const el = document.getElementById(id); if(el) el.style.width = val; };
 
             let cNeuro=0, cMed=0, cImc=0, cPallia=0;
-            active.forEach(p => { if(p.group==='Neuro') cNeuro++; if(p.group==='Med') cMed++; if(p.group==='IMC') cImc++; if(p.group==='Palliative') cPallia++; });
+            active.forEach(p => { 
+                if(p.group==='Neuro') cNeuro++; 
+                if(p.group==='Med') cMed++; 
+                if(p.group==='IMC') cImc++; 
+                if(p.group==='Palliative') cPallia++; 
+            });
             const currentCount = active.length;
 
             setTxt('occupancy-pct', `${currentCount ? Math.round((currentCount/window.TOTAL_BEDS)*100) : 0}%`);
-            setWd('occ-neuro', `${(cNeuro/window.TOTAL_BEDS)*100}%`); setWd('occ-med', `${(cMed/window.TOTAL_BEDS)*100}%`);
-            setWd('occ-imc', `${(cImc/window.TOTAL_BEDS)*100}%`); setWd('occ-palliative', `${(cPallia/window.TOTAL_BEDS)*100}%`);
-            setTxt('occ-neuro-val', cNeuro); setTxt('occ-med-val', cMed); setTxt('occ-imc-val', cImc); setTxt('occ-palliative-val', cPallia);
-            setTxt('occ-empty', window.TOTAL_BEDS - currentCount); setTxt('count-active', currentCount);
+            setWd('occ-neuro', `${(cNeuro/window.TOTAL_BEDS)*100}%`);
+            setWd('occ-med', `${(cMed/window.TOTAL_BEDS)*100}%`);
+            setWd('occ-imc', `${(cImc/window.TOTAL_BEDS)*100}%`);
+            setWd('occ-palliative', `${(cPallia/window.TOTAL_BEDS)*100}%`);
+            
+            setTxt('occ-neuro-val', cNeuro); setTxt('occ-med-val', cMed); 
+            setTxt('occ-imc-val', cImc); setTxt('occ-palliative-val', cPallia);
+            
+            setTxt('occ-empty', window.TOTAL_BEDS - currentCount);
+            setTxt('count-active', currentCount);
 
             let inN=0, inT=0, outH=0, outRo=0, outRb=0, outIcu=0, outWd=0, imcT=0, outDead=0;
             window.logs.forEach(l => {
@@ -656,8 +742,11 @@
             });
 
             setTxt('kpi-in', inN+inT); setTxt('kpi-in-new', inN); setTxt('kpi-in-trans', inT);
-            setTxt('kpi-home', outH); setTxt('kpi-refer', outRo+outRb); setTxt('kpi-move', outIcu+outWd);
-            setTxt('kpi-dead', outDead); setTxt('kpi-imc-today', imcT);
+            setTxt('kpi-home', outH);
+            setTxt('kpi-refer', outRo+outRb);
+            setTxt('kpi-move', outIcu+outWd);
+            setTxt('kpi-dead', outDead);
+            setTxt('kpi-imc-today', imcT);
 
             const th = document.getElementById('table-header');
             const tbody = document.getElementById('patient-table-body');
@@ -716,7 +805,9 @@
                 if(window.currentFilter.startsWith('Active')) {
                     let imcNotice = p.imcArrivalDate ? `<div class="mt-1.5"><span class="bg-teal-50 border border-teal-200 text-teal-700 px-2.5 py-1 rounded-lg text-xs font-bold inline-flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> แสตมป์เข้า IMC: ${new Date(p.imcArrivalDate).toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</span></div>` : '';
                     let palliaNotice = p.palliativeArrivalDate ? `<div class="mt-1.5"><span class="bg-purple-50 border border-purple-200 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold inline-flex items-center gap-1.5"><i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i> แสตมป์เข้า Palliative: ${new Date(p.palliativeArrivalDate).toLocaleDateString('th-TH',{day:'2-digit',month:'short'})}</span></div>` : '';
+                    
                     let badge = p.action==='IN_TRANSFER'?'<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-bold">รับย้าย</span>':'<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-bold">รับใหม่</span>';
+                    
                     let grpStyle = p.group==='Neuro'?'bg-blue-50 text-blue-700 border-blue-200':p.group==='Med'?'bg-amber-50 text-amber-700 border-amber-200':p.group==='IMC'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-purple-50 text-purple-700 border-purple-200';
 
                     if(tbody) tbody.innerHTML += `
@@ -736,9 +827,9 @@
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm px-3.5 py-1.5 rounded-xl border ${grpStyle}">${p.group}</span></td>
                             <td class="px-8 py-5"><div class="text-sm font-medium text-slate-600 flex gap-2 items-center">${badge} <span>${p.reason}</span></div><div class="text-xs text-slate-400 mt-1.5 flex items-center gap-2">${dateText} น. ${losBadge}</div>${imcNotice}${palliaNotice}</td>
                             <td class="px-8 py-5 text-right no-print">
-                                <div class="flex justify-end gap-2.5 opacity-100 lg:opacity-30 group-hover:opacity-100 transition-opacity">
+                                <div class="flex justify-end gap-2.5 opacity-100 transition-opacity">
                                     <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                    <button onclick="window.deletePatient('${p.hn}')" class="p-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl hover:bg-rose-100 shadow-sm transition-all" title="ลบข้อมูลผู้ป่วย"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button onclick="window.confirmDeletePatient('${p.hn}')" class="p-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl hover:bg-rose-100 shadow-sm transition-all" title="ลบข้อมูลผู้ป่วย"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                     <button onclick="window.openManageModal('${p.hn}')" class="px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-black shadow-md flex items-center gap-1.5 transition-all">จัดการ <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                                 </div>
                             </td>
@@ -754,7 +845,7 @@
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
                             <td class="px-8 py-5 text-center no-print">
                                 <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.confirmDeleteLog('${logId}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 } else if(window.currentFilter.startsWith('Special_Care')) {
@@ -770,7 +861,7 @@
                             <td class="px-8 py-5 text-sm text-slate-600">${p.reason||'-'}</td>
                             <td class="px-8 py-5 text-center no-print">
                                 <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.confirmDeleteLog('${logId}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 } else {
@@ -788,13 +879,107 @@
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
                             <td class="px-8 py-5 text-center no-print">
                                 <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.confirmDeleteLog('${logId}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 }
             });
             lucide.createIcons();
             window.renderCharts(cNeuro, cMed, cImc, cPallia, active);
+        };
+
+        window.renderCharts = (neuro, med, imc, pallia, activeData = []) => {
+            const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            setTxt('mini-neuro', neuro); setTxt('mini-med', med); setTxt('mini-imc', imc); setTxt('mini-palliative', pallia);
+
+            const dCtx = document.getElementById('donutChart')?.getContext('2d'); 
+            if(dCtx) {
+                if(window.donutChartInstance) window.donutChartInstance.destroy();
+                const total = neuro + med + imc + pallia;
+                const hasData = total > 0;
+                window.donutChartInstance = new Chart(dCtx, {
+                    type: 'doughnut', data: { labels: hasData ? ['Neuro', 'Med', 'IMC', 'Palliative'] : ['ว่าง'], datasets: [{ data: hasData ? [neuro, med, imc, pallia] : [1], backgroundColor: hasData ? ['#3B82F6', '#F59E0B', '#10B981', '#A855F7'] : ['#e2e8f0'], borderWidth: 0, hoverOffset: 4 }] },
+                    options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: {enabled: hasData} }, animation: { animateScale: true } }
+                });
+            }
+
+            const lCtx = document.getElementById('lineChart')?.getContext('2d'); 
+            if(lCtx) {
+                if(window.lineChartInstance) window.lineChartInstance.destroy();
+                const labels = [], inD = [], outD = [];
+                for(let i=6; i>=0; i--) {
+                    const d = new Date(); d.setDate(d.getDate() - i); const dStr = d.toISOString().split('T')[0];
+                    labels.push(`${d.getDate()}/${d.getMonth()+1}`); let din=0, dout=0;
+                    window.logs.forEach(l => { if(l.date===dStr){ if(l.action.startsWith('IN'))din++; if(['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action))dout++; } });
+                    inD.push(din); outD.push(dout);
+                }
+                window.lineChartInstance = new Chart(lCtx, {
+                    type: 'line', data: { labels, datasets: [{ label: 'รับเข้า (In)', data: inD, borderColor: '#007A86', backgroundColor: 'rgba(0,122,134,0.1)', fill: true, tension:0.4, borderWidth: 3, pointBackgroundColor: '#007A86', pointRadius: 4 }, { label: 'ย้ายออก (Out)', data: outD, borderColor: '#94a3b8', tension:0.4, borderWidth: 3, borderDash: [5, 5], pointBackgroundColor: '#94a3b8', pointRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { border: {dash: [4, 4]}, grid: { color: '#f1f5f9' }, beginAtZero: true, ticks: {stepSize: 1} } } }
+                });
+            }
+
+            const diagCtx = document.getElementById('diagChart')?.getContext('2d');
+            if(diagCtx && activeData) {
+                const diagCount = {};
+                activeData.forEach(p => {
+                    if(p.diagnosis) {
+                        const d = p.diagnosis.split(',')[0].trim();
+                        diagCount[d] = (diagCount[d] || 0) + 1;
+                    }
+                });
+                const sortedDiag = Object.entries(diagCount).sort((a,b) => b[1] - a[1]).slice(0, 5);
+                const diagLabels = sortedDiag.map(x => x[0]);
+                const diagDataValues = sortedDiag.map(x => x[1]);
+
+                if(window.diagChartInstance) window.diagChartInstance.destroy();
+                window.diagChartInstance = new Chart(diagCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: diagLabels.length ? diagLabels : ['ไม่มีข้อมูล'],
+                        datasets: [{
+                            label: 'จำนวนผู้ป่วย (ราย)',
+                            data: diagDataValues.length ? diagDataValues : [0],
+                            backgroundColor: '#007A86',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Sarabun'} } },
+                            y: { ticks: { font: {family: 'Sarabun', size: 14, weight: 'bold'} } }
+                        }
+                    }
+                });
+            }
+
+            let imcM = 0, palM = 0;
+            const curMonth = new Date().toISOString().substring(0,7);
+            window.logs.forEach(l => {
+                if(l.date.startsWith(curMonth)) {
+                    if(l.action === 'ENTER_IMC') imcM++;
+                    if(l.action === 'ENTER_PALLIATIVE') palM++;
+                }
+            });
+            setTxt('stat-imc-month', imcM);
+            setTxt('stat-pal-month', palM);
+        };
+
+        // -------------------------------------------------------------------
+        // 4. Action Managers (Add, Edit, Quick Action, Delete, Cloud)
+        // -------------------------------------------------------------------
+        window.openManageModal = (hn) => {
+            const pt = window.computePatientFlow().active.find(p => p.hn === hn);
+            if (!pt) { window.showToast('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ป่วย', 'error'); return; }
+            const elHn = document.getElementById('qa-hn'); if (elHn) elHn.value = hn;
+            const elInfo = document.getElementById('qa-patient-info'); if (elInfo) elInfo.innerText = `${pt.patientName} (HN: ${pt.hn})`;
+            document.querySelectorAll('input[name="qaAction"]').forEach(r => r.checked = false);
+            window.toggleQaSelectors();
+            window.openModal('quickActionModal');
         };
 
         window.submitEntryForm = async () => {
@@ -824,8 +1009,61 @@
                 date: new Date().toISOString().split('T')[0] 
             };
             
-            if(window.isCloudMode) await addDoc(window.collectionRef, log); else { window.logs.push(log); localStorage.setItem('wardLogsV8', JSON.stringify(window.logs)); window.updateDashboard(); }
+            if(window.isCloudMode) {
+                await addDoc(window.collectionRef, log); 
+            } else { 
+                window.logs.push(log); 
+                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
+                window.updateDashboard(); 
+            }
             window.closeModal('entryModal'); window.showToast('รับผู้ป่วยสำเร็จ', `HN: ${hn}`);
+        };
+
+        window.submitQuickAction = async () => {
+            const form = document.getElementById('quickActionForm'); if(!form?.checkValidity()) { form?.reportValidity(); return; }
+            const actNode = document.querySelector('input[name="qaAction"]:checked'); if(!actNode) return window.showToast('แจ้งเตือน', 'กรุณาเลือกประเภทรายการ', 'error');
+            const action = actNode.value; const hn = document.getElementById('qa-hn').value;
+            const pt = window.computePatientFlow().active.find(p => p.hn === hn);
+            
+            let group = pt.group;
+            if(action === 'CHANGE_GROUP') {
+                const groupNode = document.querySelector('input[name="qaGroup"]:checked');
+                if(!groupNode) return window.showToast('แจ้งเตือน', 'กรุณาเลือกกลุ่มที่ต้องการสลับ', 'error');
+                group = groupNode.value;
+            }
+
+            const log = { ...pt, id: Math.random().toString(36).substr(2,9), group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
+            delete log.fbId; 
+
+            if(window.isCloudMode) {
+                await addDoc(window.collectionRef, log); 
+            } else { 
+                window.logs.push(log); 
+                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
+                window.updateDashboard(); 
+            }
+            window.closeModal('quickActionModal'); window.showToast('ทำรายการสำเร็จ', pt.patientName);
+        };
+
+        window.openEditModal = (id) => {
+            const log = window.logs.find(p => p.id === id || p.fbId === id);
+            if(!log) return;
+            document.getElementById('editHn').value = log.hn;
+            document.getElementById('editLogId').value = log.id || log.fbId;
+            document.getElementById('editName').value = log.patientName;
+            document.getElementById('editAge').value = log.age;
+            document.getElementById('editSex').value = log.sex;
+            document.getElementById('editDiag').value = log.diagnosis;
+            
+            document.getElementById('editBed').value = log.bedNo || '';
+            document.getElementById('editDoctor').value = log.doctor || '';
+            document.getElementById('editInsurance').value = log.insurance || 'บัตรทอง (UC)';
+            
+            const dt = new Date(log.timestamp);
+            document.getElementById('editDate').value = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+            document.getElementById('editTime').value = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+            
+            window.openModal('editModal');
         };
 
         window.submitEditForm = async () => {
@@ -860,39 +1098,121 @@
                     if(l.hn === hn) { l.patientName = name; l.age = age; l.sex = sex; l.diagnosis = diag; l.bedNo = bedNo; l.doctor = doctor; l.insurance = insurance; }
                     if(l.id === logId || l.fbId === logId) { l.timestamp = newTimestamp; l.date = dateVal; }
                 }); 
-                localStorage.setItem('wardLogsV8', JSON.stringify(window.logs)); 
+                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
                 window.updateDashboard(); 
             }
             window.closeModal('editModal'); 
             window.showToast('สำเร็จ', 'อัปเดตข้อมูลและเวลาเรียบร้อยแล้ว');
         };
 
-        window.openEditModal = (id) => {
-            const log = window.logs.find(p => p.id === id || p.fbId === id);
-            if(!log) return;
-            document.getElementById('editHn').value = log.hn;
-            document.getElementById('editLogId').value = log.id || log.fbId;
-            document.getElementById('editName').value = log.patientName;
-            document.getElementById('editAge').value = log.age;
-            document.getElementById('editSex').value = log.sex;
-            document.getElementById('editDiag').value = log.diagnosis;
-            
-            document.getElementById('editBed').value = log.bedNo || '';
-            document.getElementById('editDoctor').value = log.doctor || '';
-            document.getElementById('editInsurance').value = log.insurance || 'บัตรทอง (UC)';
-            
-            const dt = new Date(log.timestamp);
-            document.getElementById('editDate').value = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-            document.getElementById('editTime').value = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-            
-            window.openModal('editModal');
+        window.pendingDelete = null;
+
+        window.confirmDeletePatient = (hn) => {
+            window.pendingDelete = { type: 'patient', id: hn };
+            document.getElementById('confirm-msg').innerText = `ยืนยันการลบประวัติของ HN: ${hn} ทั้งหมดออกจากระบบอย่างถาวร?`;
+            window.openModal('confirmModal');
         };
 
-        // ... (The rest of the code remains exactly the same)
-        // Auto initialization
+        window.confirmDeleteLog = (id) => {
+            window.pendingDelete = { type: 'log', id: id };
+            document.getElementById('confirm-msg').innerText = `ยืนยันการลบประวัติรายการนี้ใช่หรือไม่?`;
+            window.openModal('confirmModal');
+        };
+
+        window.executeAction = async () => {
+            if (!window.pendingDelete) return;
+            const { type, id } = window.pendingDelete;
+            
+            if (type === 'patient') {
+                if(window.isCloudMode) {
+                    const q = query(window.collectionRef, where("hn", "==", id)); 
+                    const snap = await getDocs(q);
+                    snap.forEach(d => deleteDoc(d.ref));
+                } else { 
+                    window.logs = window.logs.filter(l => l.hn !== id); 
+                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
+                    window.updateDashboard(); 
+                }
+                window.showToast('ลบสำเร็จ', 'ข้อมูลถูกจัดการออกจากระบบแล้ว');
+            } else if (type === 'log') {
+                if(window.isCloudMode) {
+                    const logToDel = window.logs.find(l => l.id === id || l.fbId === id);
+                    if(logToDel && logToDel.fbId) {
+                        await deleteDoc(doc(window.db, 'ward_platform_data', logToDel.fbId));
+                    }
+                } else { 
+                    window.logs = window.logs.filter(l => l.id !== id && l.fbId !== id); 
+                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
+                    window.updateDashboard(); 
+                }
+                window.showToast('ลบสำเร็จ', 'ลบประวัติรายการแล้ว');
+            }
+            
+            window.pendingDelete = null;
+            window.closeModal('confirmModal');
+        };
+
+        window.exportToCSV = () => {
+            const active = window.computePatientFlow().active;
+            if(active.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออก', 'error'); return; }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,วันที่รับเข้า,หมายเหตุ\n";
+            active.forEach((p, i) => { csvContent += `${i+1},"${p.hn}","${p.patientName}","${p.age}","${p.sex}","${p.diagnosis}","${p.group}","${new Date(p.timestamp).toLocaleDateString('th-TH')}","${p.reason||'-'}"\n`; });
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Ward_Patients_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        };
+
+        // --- Cloud Initialization ---
+        async function initCloud(configStr) {
+            try {
+                const match = configStr.match(/\{[\s\S]*?\}/);
+                if(!match) throw new Error("Invalid Code format");
+                const config = new Function("return " + match[0])();
+                
+                // Validate if config looks like a real firebase config
+                if(!config.apiKey || !config.projectId) {
+                    throw new Error("Missing critical Firebase fields");
+                }
+
+                const app = initializeApp(config);
+                window.db = getFirestore(app);
+                window.collectionRef = collection(window.db, 'ward_platform_data');
+                window.isCloudMode = true;
+                
+                const cloudBtn = document.getElementById('cloud-status-btn');
+                if(cloudBtn) cloudBtn.className = "flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors";
+                const cloudInd = document.getElementById('cloud-indicator');
+                if(cloudInd) cloudInd.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)`;
+                
+                localStorage.setItem('userFirebaseConfig', configStr);
+                window.closeModal('cloudConfigModal');
+                
+                onSnapshot(window.collectionRef, (snap) => {
+                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
+                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs));
+                    window.updateDashboard();
+                });
+            } catch(e) { 
+                console.error("Cloud Error:", e);
+                // Graceful fallback to avoid infinite freezing
+                localStorage.removeItem('userFirebaseConfig');
+                window.isCloudMode = false;
+                window.showToast('ข้อผิดพลาดการเชื่อมต่อ', 'โค้ด Firebase ไม่ถูกต้อง หรือไม่สมบูรณ์ กลับสู่โหมดออฟไลน์', 'error'); 
+                window.updateDashboard();
+            }
+        }
+
+        window.connectCloudFromInput = () => initCloud(document.getElementById('firebaseConfigInput').value);
+        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
+
+        // Initial Load Execution
         document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
         const savedConfig = localStorage.getItem('userFirebaseConfig');
-        if (savedConfig) initCloud(savedConfig); else window.updateDashboard();
+        if (savedConfig) {
+            initCloud(savedConfig); 
+        } else {
+            window.updateDashboard();
+        }
+
     </script>
 </body>
 </html>
