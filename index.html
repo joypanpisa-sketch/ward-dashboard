@@ -642,8 +642,9 @@
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm px-3.5 py-1.5 rounded-xl border ${grpStyle}">${p.group}</span></td>
                             <td class="px-8 py-5"><div class="text-sm font-medium text-slate-600 flex gap-2 items-center">${badge} <span>${p.reason}</span></div><div class="text-xs text-slate-400 mt-1.5">${dateText} น.</div>${imcNotice}${palliaNotice}</td>
                             <td class="px-8 py-5 text-right no-print">
-                                <div class="flex justify-end gap-2.5 opacity-100 lg:opacity-30 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="window.openEditModal('${p.hn}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <div class="flex justify-end gap-2.5 opacity-100 transition-opacity">
+                                    <button onclick="window.openEditModal('${p.hn}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all" title="แก้ไข"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                    <button onclick="window.deletePatient('${p.hn}')" class="p-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl hover:bg-rose-100 shadow-sm transition-all" title="ลบข้อมูล"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                     <button onclick="window.openManageModal('${p.hn}')" class="px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-black shadow-md flex items-center gap-1.5 transition-all">จัดการ <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                                 </div>
                             </td>
@@ -670,7 +671,7 @@
                             <td class="px-8 py-5">${badge} <div class="text-sm font-semibold text-slate-600 mt-1.5">${p.reason||'-'}</div></td>
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm px-3.5 py-1.5 rounded-xl border bg-slate-50 text-slate-600">${p.group}</span></td>
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
-                            <td class="px-8 py-5 text-center no-print"><button onclick="window.deleteLog('${p.id}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
+                            <td class="px-8 py-5 text-center no-print"><button onclick="window.deleteLog('${p.id}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบประวัติ"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
                         </tr>`;
                 } else {
                     let outLabel = p.action==='OUT_HOME'?'<span class="text-emerald-600 font-bold bg-emerald-50 px-3.5 py-1.5 rounded-xl border border-emerald-100">🏠 กลับบ้าน</span>' :
@@ -685,7 +686,7 @@
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm text-slate-600">${p.group}</span></td>
                             <td class="px-8 py-5 text-center">${outLabel}<div class="text-sm font-medium text-slate-500 mt-2.5">${p.reason||'-'}</div></td>
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
-                            <td class="px-8 py-5 text-center no-print"><button onclick="window.deleteLog('${p.id}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
+                            <td class="px-8 py-5 text-center no-print"><button onclick="window.deleteLog('${p.id}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบประวัติ"><i data-lucide="trash-2" class="w-5 h-5"></i></button></td>
                         </tr>`;
                 }
             });
