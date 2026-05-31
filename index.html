@@ -497,7 +497,7 @@
         </div>
     </div>
 
-    <!-- 4. CLOUD CONFIG MODAL -->
+    <!-- 4. CLOUD CONFIG MODAL (SMART SCANNER) -->
     <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-4 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center">
@@ -505,12 +505,14 @@
                 <button onclick="window.closeModal('cloudConfigModal')" class="text-slate-400 hover:text-white bg-white/10 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-8 space-y-4">
-                <p class="text-base text-slate-600 font-medium leading-relaxed">วางรหัส Firebase Config ที่ได้จากระบบเพื่อซิงค์ข้อมูลผู้ป่วยไปโชว์ที่จออื่นได้ทันทีแบบ Real-time</p>
-                <textarea id="firebaseConfigInput" rows="5" class="w-full mt-2 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" placeholder="const firebaseConfig = { ... };"></textarea>
+                <p class="text-base text-slate-600 font-medium leading-relaxed">วางรหัส Firebase Config ที่ได้จากระบบเพื่อซิงค์ข้อมูลผู้ป่วยแบบ Real-time</p>
+                <textarea id="firebaseConfigInput" rows="5" class="w-full mt-2 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" placeholder="วางโค้ดตรงนี้ (ระบบจะสแกนหา apiKey ให้อัตโนมัติ)..."></textarea>
             </div>
             <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between rounded-b-3xl">
                 <button onclick="window.disconnectCloud()" class="text-base font-bold text-rose-600 hover:text-rose-800 transition-colors px-4 py-2 rounded-xl hover:bg-rose-50">กลับไปใช้ออฟไลน์</button>
-                <button onclick="window.connectCloudFromInput()" class="px-8 py-3 text-base font-bold text-white bg-[#008290] hover:bg-[#006B77] rounded-xl shadow-md transition-colors flex items-center gap-2"><i data-lucide="wifi" class="w-5 h-5"></i> เชื่อมต่อ</button>
+                <button id="btn-connect" onclick="window.connectCloudFromInput()" class="px-8 py-3 text-base font-bold text-white bg-[#008290] hover:bg-[#006B77] rounded-xl shadow-md transition-colors flex items-center gap-2">
+                    <i data-lucide="wifi" class="w-5 h-5"></i> เชื่อมต่อ
+                </button>
             </div>
         </div>
     </div>
@@ -520,9 +522,15 @@
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
     </datalist>
 
+    <script>
+        // Pre-module fallback functions
+        window.connectCloudFromInput = () => { alert("ระบบกำลังเตรียมความพร้อม (โหลด Cloud) กรุณารอสักครู่..."); };
+        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
+    </script>
+
     <!-- Application Script (Modular & Reliable) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // Global State Binding
@@ -654,7 +662,6 @@
             }
         };
 
-        // Date Filter Logic
         function isDateInRange(dateString, filterType) {
             if(filterType === 'all') return true;
             const logDate = new Date(dateString);
@@ -793,7 +800,6 @@
                 const dateText = admitDate.toLocaleDateString('th-TH', {day:'2-digit', month:'short'}) + ' ' + admitDate.toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
                 const logId = p.id || p.fbId;
 
-                // Calculate Length of Stay (LOS) for Active Patients
                 let losBadge = '';
                 if(window.currentFilter.startsWith('Active')) {
                     const diffTime = Math.abs(todayDate - admitDate);
@@ -970,7 +976,7 @@
         };
 
         // -------------------------------------------------------------------
-        // 4. Action Managers (Add, Edit, Quick Action, Delete, Cloud)
+        // 4. Action Managers
         // -------------------------------------------------------------------
         window.openManageModal = (hn) => {
             const pt = window.computePatientFlow().active.find(p => p.hn === hn);
@@ -1162,18 +1168,76 @@
         };
 
         // --- Cloud Initialization ---
-        async function initCloud(configStr) {
+        window.connectCloudFromInput = async () => {
+            const btn = document.getElementById('btn-connect');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> กำลังเชื่อมต่อ...';
+            btn.disabled = true;
+            
             try {
-                const match = configStr.match(/\{[\s\S]*?\}/);
-                if(!match) throw new Error("Invalid Code format");
-                const config = new Function("return " + match[0])();
+                const configStr = document.getElementById('firebaseConfigInput').value;
+                if(!configStr.trim()) throw new Error("กรุณาวางโค้ดในช่องว่างก่อนกดเชื่อมต่อ");
                 
-                // Validate if config looks like a real firebase config
-                if(!config.apiKey || !config.projectId) {
-                    throw new Error("Missing critical Firebase fields");
+                // Smart Scanner (Extracts keys even if user copied it poorly)
+                const extract = (key) => {
+                    const match = configStr.match(new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`));
+                    return match ? match[1] : null;
+                };
+                
+                const config = {
+                    apiKey: extract('apiKey'),
+                    authDomain: extract('authDomain'),
+                    projectId: extract('projectId'),
+                    storageBucket: extract('storageBucket'),
+                    messagingSenderId: extract('messagingSenderId'),
+                    appId: extract('appId')
+                };
+
+                if (!config.apiKey || !config.projectId) {
+                    throw new Error("โค้ดไม่ครบถ้วน! ขาด apiKey หรือ projectId (แนะนำให้ก๊อปปี้มาใหม่ทั้งหมด)");
                 }
 
-                const app = initializeApp(config);
+                // Initialize safely
+                const app = !getApps().length ? initializeApp(config) : getApp();
+                window.db = getFirestore(app);
+                window.collectionRef = collection(window.db, 'ward_platform_data');
+                window.isCloudMode = true;
+                
+                localStorage.setItem('userFirebaseConfig', JSON.stringify(config));
+                
+                window.closeModal('cloudConfigModal');
+                window.showToast('เชื่อมต่อสำเร็จ', 'ข้อมูลถูกดึงมาและซิงค์ Real-time แล้ว');
+                
+                const cloudBtn = document.getElementById('cloud-status-btn');
+                if(cloudBtn) cloudBtn.className = "flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors";
+                const cloudInd = document.getElementById('cloud-indicator');
+                if(cloudInd) cloudInd.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)`;
+
+                onSnapshot(window.collectionRef, (snap) => {
+                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
+                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs));
+                    window.updateDashboard();
+                });
+                
+            } catch(e) {
+                window.showToast('ข้อผิดพลาด', e.message || 'รหัสไม่ถูกต้อง', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        };
+
+        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
+
+        // Initial Load Execution
+        document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
+        
+        const savedConfigStr = localStorage.getItem('userFirebaseConfig');
+        if (savedConfigStr) {
+            try {
+                const config = JSON.parse(savedConfigStr);
+                const app = !getApps().length ? initializeApp(config) : getApp();
                 window.db = getFirestore(app);
                 window.collectionRef = collection(window.db, 'ward_platform_data');
                 window.isCloudMode = true;
@@ -1182,33 +1246,13 @@
                 if(cloudBtn) cloudBtn.className = "flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors";
                 const cloudInd = document.getElementById('cloud-indicator');
                 if(cloudInd) cloudInd.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)`;
-                
-                localStorage.setItem('userFirebaseConfig', configStr);
-                window.closeModal('cloudConfigModal');
-                
+
                 onSnapshot(window.collectionRef, (snap) => {
                     window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
                     localStorage.setItem('wardLogsV9', JSON.stringify(window.logs));
                     window.updateDashboard();
                 });
-            } catch(e) { 
-                console.error("Cloud Error:", e);
-                // Graceful fallback to avoid infinite freezing
-                localStorage.removeItem('userFirebaseConfig');
-                window.isCloudMode = false;
-                window.showToast('ข้อผิดพลาดการเชื่อมต่อ', 'โค้ด Firebase ไม่ถูกต้อง หรือไม่สมบูรณ์ กลับสู่โหมดออฟไลน์', 'error'); 
-                window.updateDashboard();
-            }
-        }
-
-        window.connectCloudFromInput = () => initCloud(document.getElementById('firebaseConfigInput').value);
-        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
-
-        // Initial Load Execution
-        document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
-        const savedConfig = localStorage.getItem('userFirebaseConfig');
-        if (savedConfig) {
-            initCloud(savedConfig); 
+            } catch(e) { window.updateDashboard(); }
         } else {
             window.updateDashboard();
         }
