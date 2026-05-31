@@ -533,12 +533,12 @@
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
     </datalist>
     <datalist id="doctorList">
-        <option value="พญ. แวววรรณ  กองมี"></option>
-        <option value="พญ. กุลนิษฐ์  คุ้มชนะ"></option>
-        <option value="พญ. เสาวรินทร์  เผดิมปราชญ์"></option>
-        <option value="พญ. สิริกันยา  วิเศษคุปต์"></option>
-        <option value="นพ. กิตติคุณ  ล้อมวนวงศ์"></option>
-        <option value="นพ. เจษฎา  ชัยคำมา"></option>
+        <option value="นพ. นรินทร์"></option>
+        <option value="นพ. วุฒิพงษ์"></option>
+        <option value="พญ. สิรินภา"></option>
+        <option value="พญ. กัลยรัตน์"></option>
+        <option value="แพทย์เวร อายุรกรรมประสาท"></option>
+        <option value="แพทย์เวร อายุรกรรมทั่วไป"></option>
     </datalist>
 
     <script>
@@ -1098,7 +1098,6 @@
             document.getElementById('editSex').value = log.sex;
             document.getElementById('editDiag').value = log.diagnosis;
             
-            document.getElementById('editBed').value = log.bedNo || '';
             document.getElementById('editDoctor').value = log.doctor || '';
             document.getElementById('editInsurance').value = log.insurance || 'บัตรทอง (UC)';
             
@@ -1116,7 +1115,6 @@
             const age = document.getElementById('editAge').value;
             const sex = document.getElementById('editSex').value;
             const diag = document.getElementById('editDiag').value;
-            const bedNo = document.getElementById('editBed').value;
             const doctor = document.getElementById('editDoctor').value;
             const insurance = document.getElementById('editInsurance').value;
             
@@ -1129,7 +1127,7 @@
                 const snap = await getDocs(q);
                 snap.forEach(d => {
                     const data = d.data();
-                    let updates = { patientName: name, age: age, sex: sex, diagnosis: diag, bedNo: bedNo, doctor: doctor, insurance: insurance };
+                    let updates = { patientName: name, age: age, sex: sex, diagnosis: diag, doctor: doctor, insurance: insurance };
                     if (d.id === logId || data.id === logId || data.fbId === logId) {
                         updates.timestamp = newTimestamp;
                         updates.date = dateVal;
@@ -1138,7 +1136,7 @@
                 });
             } else { 
                 window.logs.forEach(l => { 
-                    if(l.hn === hn) { l.patientName = name; l.age = age; l.sex = sex; l.diagnosis = diag; l.bedNo = bedNo; l.doctor = doctor; l.insurance = insurance; }
+                    if(l.hn === hn) { l.patientName = name; l.age = age; l.sex = sex; l.diagnosis = diag; l.doctor = doctor; l.insurance = insurance; }
                     if(l.id === logId || l.fbId === logId) { l.timestamp = newTimestamp; l.date = dateVal; }
                 }); 
                 localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
