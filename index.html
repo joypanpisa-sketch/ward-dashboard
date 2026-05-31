@@ -55,7 +55,6 @@
             body, html { background: white !important; height: auto !important; overflow: visible !important; }
             #sidebar, header, .no-print, #dashboard-views, #view-dashboard { display: none !important; }
             
-            /* ยกเลิกการซ่อน/scroll ของ element หลักเพื่อให้พิมพ์ได้ครบทุกหน้า */
             #main-content, #view-patients, #view-patients > div, .overflow-auto, .overflow-y-auto, .flex-1, .h-full, .h-screen { 
                 height: auto !important; 
                 min-height: auto !important;
@@ -68,7 +67,6 @@
             
             .print-header { display: block !important; text-align: center; margin-bottom: 20px; padding-top: 10px; }
             
-            /* การตั้งค่าตารางสำหรับ Print */
             table { width: 100% !important; border-collapse: collapse; page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
             thead { display: table-header-group; }
@@ -91,7 +89,7 @@
         <button onclick="closeToast()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
 
-    <!-- Sidebar (Dark Navy Theme) -->
+    <!-- Sidebar -->
     <div id="sidebar" class="w-20 lg:w-[280px] bg-sidebar flex flex-col flex-shrink-0 z-30 shadow-2xl no-print transition-all duration-300">
         <div class="p-6 flex items-center gap-4 text-white h-24">
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4FD1C5] to-primary flex items-center justify-center shrink-0 shadow-lg shadow-[#4FD1C5]/20">
@@ -116,7 +114,6 @@
             </nav>
         </div>
 
-        <!-- User Profile Area -->
         <div class="p-5 m-5 bg-white/5 rounded-2xl flex items-center justify-center lg:justify-start gap-4 border border-white/5">
             <img src="https://ui-avatars.com/api/?name=Ward+6&background=0D8B93&color=fff" class="w-12 h-12 rounded-full border-2 border-white/10 shrink-0" alt="Profile">
             <div class="hidden lg:block flex-1 min-w-0">
@@ -128,8 +125,6 @@
 
     <!-- Main Content -->
     <div id="main-content" class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        
-        <!-- Header (Glassmorphism) -->
         <header class="h-auto md:h-[84px] py-4 md:py-0 glass-panel flex flex-col md:flex-row items-center justify-between px-8 shrink-0 z-20 sticky top-0 no-print gap-4 md:gap-0">
             <div class="flex items-center gap-4 w-full md:w-auto">
                 <h2 class="text-3xl font-bold text-slate-800 tracking-tight" id="header-title">ทะเบียนผู้ป่วย (Registry)</h2>
@@ -152,17 +147,17 @@
             </div>
         </header>
 
-        <!-- Print Header -->
         <div class="print-header">
             <h1 class="text-3xl font-bold" id="print-title">รายงานสรุปข้อมูลหอผู้ป่วย</h1>
             <h2 class="text-xl mt-2 text-slate-600">หอผู้ป่วยอายุรกรรมประสาท โรงพยาบาลประสาทเชียงใหม่</h2>
             <p class="text-base mt-3 text-slate-500" id="print-date">ข้อมูล ณ วันที่: -</p>
+            <p class="text-sm mt-1 text-slate-600 font-bold" id="print-filter-status"></p>
         </div>
 
         <!-- Scrollable Body -->
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
             
-            <!-- VIEW 1: PATIENT REGISTRY (ย้ายมาเป็น Default) -->
+            <!-- VIEW 1: PATIENT REGISTRY -->
             <div id="view-patients" class="flex h-full flex-col animate-fade-in">
                 <div class="bg-white rounded-[2rem] shadow-soft border border-slate-100 flex flex-col h-full md:h-[calc(100vh-150px)] overflow-hidden">
                     
@@ -171,51 +166,45 @@
                         <div class="flex gap-8 text-base font-medium w-full md:w-auto overflow-x-auto whitespace-nowrap scrollbar-hide pb-2">
                             <button onclick="window.setFilter('Active_All')" id="tab-Active_All" class="tab-btn active">ผู้ป่วยครองเตียง (<span id="count-active">0</span>)</button>
                             <button onclick="window.setFilter('Admit_History')" id="tab-Admit_History" class="tab-btn">ประวัติรับเข้า</button>
-                            <button onclick="window.setFilter('Discharged_Today')" id="tab-Discharged_Today" class="tab-btn">จำหน่ายวันนี้</button>
-                            <button onclick="window.setFilter('Discharged_Month')" id="tab-Discharged_Month" class="tab-btn">จำหน่ายเดือนนี้</button>
+                            <button onclick="window.setFilter('Discharged_History')" id="tab-Discharged_History" class="tab-btn">ประวัติจำหน่าย</button>
                             <button onclick="window.setFilter('Special_Care')" id="tab-Special_Care" class="tab-btn text-purple-600"><i data-lucide="heart-handshake" class="w-5 h-5 inline mb-1 mr-1"></i> สถิติ IMC/PC</button>
                         </div>
-                        <div class="relative w-full md:w-96 mb-4">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="w-5 h-5 text-slate-400"></i></div>
-                            <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา HN หรือ ชื่อผู้ป่วย...">
+                        
+                        <!-- Search and Filter Bar -->
+                        <div class="w-full md:w-auto flex gap-3 mb-4">
+                            <div class="relative w-full md:w-72">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="w-5 h-5 text-slate-400"></i></div>
+                                <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา HN หรือ ชื่อผู้ป่วย...">
+                            </div>
+                            <button onclick="window.openModal('filterModal')" id="filter-btn-ui" class="flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl shadow-sm hover:bg-slate-50 transition-all font-bold">
+                                <i data-lucide="filter" class="w-5 h-5"></i> <span class="hidden xl:inline">กรองข้อมูล</span>
+                            </button>
                         </div>
                     </div>
                     
                     <!-- Table -->
                     <div class="overflow-auto flex-1 bg-white">
                         <table class="w-full text-base text-left whitespace-nowrap">
-                            <thead class="text-sm text-slate-500 uppercase bg-slate-50/80 sticky top-0 z-10 shadow-sm" id="table-header">
-                                <!-- Injected via JS -->
-                            </thead>
-                            <tbody id="patient-table-body" class="divide-y divide-slate-100/80">
-                                <!-- Injected via JS -->
-                            </tbody>
+                            <thead class="text-sm text-slate-500 uppercase bg-slate-50/80 sticky top-0 z-10 shadow-sm" id="table-header"></thead>
+                            <tbody id="patient-table-body" class="divide-y divide-slate-100/80"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW 2: DASHBOARD (ซ่อนเป็นค่าเริ่มต้น) -->
+            <!-- VIEW 2: DASHBOARD -->
             <div id="view-dashboard" class="space-y-8 hidden animate-fade-in">
-                
                 <!-- Main Occupancy Card -->
                 <div class="bg-white rounded-[2rem] shadow-soft border border-slate-100 p-8 md:p-10 relative overflow-hidden">
                     <div class="absolute right-0 top-0 w-80 h-80 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full -mr-10 -mt-10 z-0 pointer-events-none"></div>
-                    
                     <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
                         <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="p-2 bg-primary/10 rounded-xl text-primary"><i data-lucide="bed" class="w-6 h-6"></i></div>
-                                <h3 class="text-2xl font-bold text-slate-800">อัตราการครองเตียง (Occupancy Rate)</h3>
-                            </div>
+                            <div class="flex items-center gap-3 mb-2"><div class="p-2 bg-primary/10 rounded-xl text-primary"><i data-lucide="bed" class="w-6 h-6"></i></div><h3 class="text-2xl font-bold text-slate-800">อัตราการครองเตียง (Occupancy Rate)</h3></div>
                             <p class="text-base text-slate-500 font-medium ml-12">ความจุหอผู้ป่วยทั้งหมด <span class="text-slate-800 font-bold">28</span> เตียง</p>
                         </div>
-                        <div class="text-right">
-                            <span class="text-6xl font-black text-slate-800 tracking-tight" id="occupancy-pct">0%</span>
-                        </div>
+                        <div class="text-right"><span class="text-6xl font-black text-slate-800 tracking-tight" id="occupancy-pct">0%</span></div>
                     </div>
 
-                    <!-- Progress Bar (Added Palliative) -->
                     <div class="w-full bg-slate-100 h-8 rounded-full overflow-hidden flex border border-slate-200/50 shadow-inner relative z-10">
                         <div id="occ-neuro" class="bg-blue-500 h-full transition-all duration-1000 ease-out relative group" style="width: 0%"></div>
                         <div id="occ-med" class="bg-amber-500 h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
@@ -234,7 +223,6 @@
                     </div>
                 </div>
 
-                <!-- KPI Cards (6 Grid) -->
                 <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 xl:gap-6">
                     <div class="stat-card bg-white rounded-3xl shadow-soft border border-slate-100 p-6">
                         <div class="flex justify-between items-start"><p class="text-sm font-bold text-slate-500 uppercase">รับเข้าวันนี้</p><div class="p-2 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="log-in" class="w-5 h-5"></i></div></div>
@@ -263,7 +251,6 @@
                     </div>
                 </div>
 
-                <!-- Charts Section -->
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                     <div class="xl:col-span-1 bg-white rounded-3xl shadow-soft border border-slate-100 p-8 flex flex-col items-center justify-center">
                         <h4 class="text-lg font-bold text-slate-800 self-start mb-8 w-full flex justify-between">สัดส่วนผู้ป่วย <i data-lucide="pie-chart" class="w-5 h-5 text-slate-400"></i></h4>
@@ -286,13 +273,11 @@
                     </div>
                 </div>
 
-                <!-- Diagnosis and Special Care Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                     <div class="bg-white rounded-3xl shadow-soft border border-slate-100 p-8 flex flex-col">
                         <h4 class="text-lg font-bold text-slate-800 mb-6 flex justify-between">5 อันดับโรคที่พบบ่อย <i data-lucide="bar-chart-2" class="w-6 h-6 text-slate-400"></i></h4>
                         <div class="flex-1 min-h-[250px] relative"><canvas id="diagChart"></canvas></div>
                     </div>
-                    
                     <div class="bg-gradient-to-br from-purple-50 to-white rounded-3xl shadow-soft border border-purple-100 p-8 flex flex-col">
                         <h4 class="text-lg font-bold text-purple-800 mb-6 flex justify-between">สรุปสถิติ IMC & Palliative (เดือนนี้) <i data-lucide="heart-handshake" class="w-6 h-6 text-purple-400"></i></h4>
                         <div class="flex-1 flex flex-col justify-center space-y-6">
@@ -308,15 +293,52 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <!-- ==========================================
-         MODALS (Glassmorphism & Clean UI)
+         MODALS 
          ========================================== -->
 
-    <!-- 1. ENTRY MODAL (Admit) -->
+    <!-- ADVANCED FILTER MODAL -->
+    <div id="filterModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 md:p-6 no-print opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 border border-white/20">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center rounded-t-3xl bg-slate-50/50">
+                <h2 class="text-xl font-bold flex items-center gap-3 text-slate-800"><div class="p-2 bg-primary/10 rounded-xl text-primary"><i data-lucide="filter" class="w-5 h-5"></i></div> กรองข้อมูลขั้นสูง</h2>
+                <button onclick="window.closeModal('filterModal')" class="text-slate-400 hover:text-slate-800 bg-white p-2 rounded-full border border-slate-200 hover:bg-slate-100 transition shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-8 space-y-6">
+                <!-- Date Range -->
+                <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-600 uppercase">ช่วงเวลา (วันที่เริ่มต้น - สิ้นสุด)</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="date" id="filterStartDate" class="w-full px-4 py-3 text-base rounded-xl border border-slate-200 focus:border-primary outline-none focus:ring-2 focus:ring-primary/20">
+                        <input type="date" id="filterEndDate" class="w-full px-4 py-3 text-base rounded-xl border border-slate-200 focus:border-primary outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+                </div>
+                <!-- Group Filter -->
+                <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-600 uppercase">กลุ่ม/แผนกผู้ป่วย</label>
+                    <select id="filterGroupSelect" class="w-full px-4 py-3.5 text-lg rounded-xl border border-slate-200 focus:border-primary outline-none focus:ring-2 focus:ring-primary/20 bg-white">
+                        <option value="ALL">ผู้ป่วยทั้งหมด (รวมทุกแผนก)</option>
+                        <option value="Neuro">เฉพาะ Neuro</option>
+                        <option value="Med">เฉพาะ Med</option>
+                        <option value="IMC">เฉพาะ IMC (รวมผู้ป่วยแสตมป์)</option>
+                        <option value="PALLIATIVE">เฉพาะ Palliative Care (รวมผู้ป่วยแสตมป์)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="px-8 py-6 bg-slate-50 flex justify-between gap-4 rounded-b-3xl border-t border-slate-100">
+                <button onclick="window.clearFilters()" class="px-6 py-3 text-base font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">ล้างตัวกรอง</button>
+                <div class="flex gap-3">
+                    <button onclick="window.closeModal('filterModal')" class="px-5 py-3 text-base font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors shadow-sm">ยกเลิก</button>
+                    <button onclick="window.applyFilters()" class="px-8 py-3 text-base font-bold text-white bg-primary rounded-xl shadow-md hover:bg-primaryHover transition-all">ตกลง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTRY MODAL (Admit) -->
     <div id="entryModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 md:p-6 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 border border-white/20">
             <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center rounded-t-3xl bg-slate-50/50">
@@ -374,7 +396,7 @@
         </div>
     </div>
 
-    <!-- 2. QUICK ACTION MODAL (Manage Flow) -->
+    <!-- QUICK ACTION MODAL -->
     <div id="quickActionModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 md:p-6 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center shadow-md">
@@ -385,20 +407,17 @@
                 <form id="quickActionForm" class="space-y-8">
                     <input type="hidden" id="qa-hn">
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_HOME" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all hover:bg-slate-50"><i data-lucide="home" class="w-7 h-7 mx-auto mb-2.5 text-emerald-600"></i><div class="font-bold text-sm text-slate-700">กลับบ้าน (Home)</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_REFER_OUT" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition-all hover:bg-slate-50"><i data-lucide="arrow-up-right" class="w-7 h-7 mx-auto mb-2.5 text-indigo-600"></i><div class="font-bold text-sm text-slate-700">Refer Out</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_REFER_BACK" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all hover:bg-slate-50"><i data-lucide="arrow-down-left" class="w-7 h-7 mx-auto mb-2.5 text-blue-600"></i><div class="font-bold text-sm text-slate-700">Refer Back</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_ICU" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all hover:bg-slate-50"><i data-lucide="activity" class="w-7 h-7 mx-auto mb-2.5 text-orange-600"></i><div class="font-bold text-sm text-slate-700">ย้ายลง ICU</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_WARD" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-violet-500 peer-checked:bg-violet-50 transition-all hover:bg-slate-50"><i data-lucide="bed-double" class="w-7 h-7 mx-auto mb-2.5 text-violet-600"></i><div class="font-bold text-sm text-slate-700">ย้ายวอร์ดพิเศษ</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_DEAD" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-slate-800 peer-checked:bg-slate-100 transition-all hover:bg-slate-50"><i data-lucide="user-x" class="w-7 h-7 mx-auto mb-2.5 text-slate-700"></i><div class="font-bold text-sm text-slate-700">เสียชีวิต (Dead)</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_HOME" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all hover:bg-slate-50"><i data-lucide="home" class="w-7 h-7 mx-auto mb-2.5 text-emerald-600"></i><div class="font-bold text-sm text-slate-700">กลับบ้าน (Home)</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_REFER_OUT" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition-all hover:bg-slate-50"><i data-lucide="arrow-up-right" class="w-7 h-7 mx-auto mb-2.5 text-indigo-600"></i><div class="font-bold text-sm text-slate-700">Refer Out</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_REFER_BACK" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all hover:bg-slate-50"><i data-lucide="arrow-down-left" class="w-7 h-7 mx-auto mb-2.5 text-blue-600"></i><div class="font-bold text-sm text-slate-700">Refer Back</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_ICU" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all hover:bg-slate-50"><i data-lucide="activity" class="w-7 h-7 mx-auto mb-2.5 text-orange-600"></i><div class="font-bold text-sm text-slate-700">ย้ายลง ICU</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_WARD" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-violet-500 peer-checked:bg-violet-50 transition-all hover:bg-slate-50"><i data-lucide="bed-double" class="w-7 h-7 mx-auto mb-2.5 text-violet-600"></i><div class="font-bold text-sm text-slate-700">ย้ายวอร์ดพิเศษ</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="OUT_DEAD" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-slate-800 peer-checked:bg-slate-100 transition-all hover:bg-slate-50"><i data-lucide="user-x" class="w-7 h-7 mx-auto mb-2.5 text-slate-700"></i><div class="font-bold text-sm text-slate-700">เสียชีวิต (Dead)</div></div></label>
                         
                         <div class="col-span-2 sm:col-span-3 h-px bg-slate-200 my-2"></div>
 
-                        <!-- Clinical Milestones (Stamps) -->
-                        <div class="col-span-2 sm:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label class="cursor-pointer"><input type="radio" name="qaAction" value="ENTER_IMC" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-teal-500 peer-checked:bg-teal-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="check-circle" class="w-6 h-6 text-teal-600"></i><div class="font-bold text-sm text-teal-700">🟢 แสตมป์เข้า IMC <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
-                            <label class="cursor-pointer"><input type="radio" name="qaAction" value="ENTER_PALLIATIVE" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="heart-handshake" class="w-6 h-6 text-purple-600"></i><div class="font-bold text-sm text-purple-700">🟣 แสตมป์ Palliative <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
-                        </div>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="ENTER_IMC" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-teal-500 peer-checked:bg-teal-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="check-circle" class="w-6 h-6 text-teal-600"></i><div class="font-bold text-sm text-teal-700">🟢 แสตมป์เข้า IMC <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="qaAction" value="ENTER_PALLIATIVE" class="peer hidden"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="heart-handshake" class="w-6 h-6 text-purple-600"></i><div class="font-bold text-sm text-purple-700">🟣 แสตมป์ Palliative <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
                     </div>
 
                     <div class="space-y-2">
@@ -414,7 +433,7 @@
         </div>
     </div>
 
-    <!-- 3. EDIT MODAL -->
+    <!-- EDIT MODAL -->
     <div id="editModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-5 border-b border-slate-100 bg-slate-700 text-white rounded-t-3xl font-bold flex items-center justify-between">
@@ -442,7 +461,7 @@
         </div>
     </div>
 
-    <!-- 4. CLOUD CONFIG MODAL -->
+    <!-- CLOUD CONFIG MODAL -->
     <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-4 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center">
@@ -475,6 +494,7 @@
         window.logs = JSON.parse(localStorage.getItem('wardLogsV8')) || [];
         window.currentFilter = 'Active_All';
         window.searchQuery = '';
+        window.advancedFilters = { group: 'ALL', startDate: '', endDate: '' };
         window.isCloudMode = false;
         window.db = null;
         window.collectionRef = null;
@@ -566,6 +586,23 @@
             window.updateDashboard(); 
         };
 
+        window.applyFilters = () => {
+            window.advancedFilters.startDate = document.getElementById('filterStartDate').value;
+            window.advancedFilters.endDate = document.getElementById('filterEndDate').value;
+            window.advancedFilters.group = document.getElementById('filterGroupSelect').value;
+            window.closeModal('filterModal');
+            window.updateDashboard();
+        };
+
+        window.clearFilters = () => {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterGroupSelect').value = 'ALL';
+            window.advancedFilters = { group: 'ALL', startDate: '', endDate: '' };
+            window.closeModal('filterModal');
+            window.updateDashboard();
+        };
+
         window.toggleTransferSource = () => {
             const type = document.querySelector('input[name="addType"]:checked')?.value;
             const newDiv = document.getElementById('source-new-div');
@@ -576,23 +613,6 @@
             } else {
                 if(newDiv) newDiv.classList.remove('hidden');
                 if(transDiv) transDiv.classList.add('hidden');
-            }
-        };
-
-        window.toggleTransferSpecify = () => {
-            const select = document.getElementById('addReasonTransferSelect')?.value;
-            const input = document.getElementById('addReasonSpecify');
-            if(select === 'อื่นๆ' && input) { input.classList.remove('hidden'); input.required = true; }
-            else if(input) { input.classList.add('hidden'); input.required = false; }
-        };
-
-        window.toggleQaSelectors = () => {
-            const val = document.querySelector('input[name="qaAction"]:checked')?.value;
-            const el = document.getElementById('qa-group-selector');
-            if(val === 'CHANGE_GROUP') { 
-                if (el) el.classList.remove('hidden'); 
-            } else { 
-                if (el) el.classList.add('hidden'); 
             }
         };
 
@@ -610,8 +630,6 @@
                     if(map[log.hn]) map[log.hn].imcArrivalDate = log.timestamp;
                 } else if(log.action === 'ENTER_PALLIATIVE') {
                     if(map[log.hn]) map[log.hn].palliativeArrivalDate = log.timestamp;
-                } else if(log.action === 'CHANGE_GROUP') {
-                    if(map[log.hn]) map[log.hn].group = log.group;
                 } else {
                     map[log.hn] = {...log}; // IN_NEW / IN_TRANSFER
                 }
@@ -674,6 +692,25 @@
             setTxt('kpi-dead', outDead);
             setTxt('kpi-imc-today', imcT);
 
+            // Setup Print Filters UI
+            let printFilterStatus = '';
+            if(window.advancedFilters.startDate || window.advancedFilters.endDate || window.advancedFilters.group !== 'ALL') {
+                printFilterStatus = `(กรองข้อมูล: ${window.advancedFilters.group !== 'ALL' ? window.advancedFilters.group : 'ทุกกลุ่ม'}, วันที่: ${window.advancedFilters.startDate || 'เริ่มต้น'} ถึง ${window.advancedFilters.endDate || 'ปัจจุบัน'})`;
+            }
+            setTxt('print-filter-status', printFilterStatus);
+
+            // Filter Button UI State
+            const filterBtn = document.getElementById('filter-btn-ui');
+            if(filterBtn) {
+                if(window.advancedFilters.startDate || window.advancedFilters.endDate || window.advancedFilters.group !== 'ALL') {
+                    filterBtn.classList.add('bg-primary', 'text-white', 'border-primary');
+                    filterBtn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+                } else {
+                    filterBtn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                    filterBtn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+                }
+            }
+
             const th = document.getElementById('table-header');
             const tbody = document.getElementById('patient-table-body');
             if(tbody) tbody.innerHTML = '';
@@ -685,24 +722,42 @@
                 list = active;
             } else if(window.currentFilter === 'Admit_History') {
                 setTxt('print-title', "ประวัติการรับเข้า (Admit / Transfer)");
-                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold">ประเภทรับเข้า</th><th class="px-8 py-5 font-bold text-center">วอร์ดหลัก</th><th class="px-8 py-5 font-bold">วันที่และเวลา</th><th class="px-8 py-5 font-bold text-center no-print">จัดการ</th></tr>`;
+                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold">ประเภทรับเข้า</th><th class="px-8 py-5 font-bold text-center">วอร์ดหลัก</th><th class="px-8 py-5 font-bold">วันที่และเวลา</th><th class="px-8 py-5 font-bold text-center no-print">ลบ</th></tr>`;
                 list = admittedLogs;
+            } else if(window.currentFilter === 'Discharged_History') {
+                setTxt('print-title', "รายงานการจำหน่ายผู้ป่วย (Discharge History)");
+                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold text-center">วอร์ดล่าสุด</th><th class="px-8 py-5 font-bold text-center">ประเภทจำหน่าย / ปลายทาง</th><th class="px-8 py-5 font-bold">วันที่จำหน่ายออก</th><th class="px-8 py-5 font-bold text-center no-print">ลบ</th></tr>`;
+                list = discharged;
             } else if(window.currentFilter === 'Special_Care') {
-                setTxt('print-title', "รายงานสถิติการดูแลพิเศษ (IMC & Palliative Care)");
-                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold">ประเภทการดูแล</th><th class="px-8 py-5 font-bold">วันที่แสตมป์เข้า</th><th class="px-8 py-5 font-bold">รายละเอียดเพิ่มเติม</th><th class="px-8 py-5 font-bold text-center no-print">จัดการ</th></tr>`;
+                setTxt('print-title', "รายงานสถิติการดูแลพิเศษ (IMC / Palliative Care)");
+                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold">ประเภทการดูแล</th><th class="px-8 py-5 font-bold">วันที่แสตมป์เข้า</th><th class="px-8 py-5 font-bold">รายละเอียดเพิ่มเติม</th><th class="px-8 py-5 font-bold text-center no-print">ลบประวัติ</th></tr>`;
                 list = window.logs.filter(l => ['ENTER_IMC', 'ENTER_PALLIATIVE'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            } else {
-                let reportTitle = "รายงานการจำหน่ายผู้ป่วย";
-                if(window.currentFilter === 'Discharged_Today') { reportTitle += " (ประจำวัน)"; list = discharged.filter(p => p.date === today); }
-                else { reportTitle += " (ประจำเดือน)"; list = discharged.filter(p => p.date.substring(0,7) === today.substring(0,7)); }
-                setTxt('print-title', reportTitle);
-                if(th) th.innerHTML = `<tr><th class="px-8 py-5 font-bold text-center w-12">No.</th><th class="px-8 py-5 font-bold">ชื่อผู้ป่วย / HN</th><th class="px-8 py-5 font-bold text-center">วอร์ดล่าสุด</th><th class="px-8 py-5 font-bold text-center">ประเภทจำหน่าย / ปลายทาง</th><th class="px-8 py-5 font-bold">วันที่จำหน่ายออก</th><th class="px-8 py-5 font-bold text-center no-print">จัดการ</th></tr>`;
             }
 
-            if(window.searchQuery) list = list.filter(p => p.hn?.toLowerCase().includes(window.searchQuery) || p.patientName?.toLowerCase().includes(window.searchQuery));
+            // 1. Search Query Filter
+            if(window.searchQuery) {
+                list = list.filter(p => p.hn?.toLowerCase().includes(window.searchQuery) || p.patientName?.toLowerCase().includes(window.searchQuery));
+            }
+
+            // 2. Advanced Filters Application
+            if (window.advancedFilters.startDate) {
+                list = list.filter(p => p.date >= window.advancedFilters.startDate);
+            }
+            if (window.advancedFilters.endDate) {
+                list = list.filter(p => p.date <= window.advancedFilters.endDate);
+            }
+            if (window.advancedFilters.group !== 'ALL') {
+                if (window.advancedFilters.group === 'IMC') {
+                    list = list.filter(p => p.group === 'IMC' || p.imcArrivalDate || p.action === 'ENTER_IMC');
+                } else if (window.advancedFilters.group === 'PALLIATIVE') {
+                    list = list.filter(p => p.group === 'Palliative' || p.palliativeArrivalDate || p.action === 'ENTER_PALLIATIVE');
+                } else {
+                    list = list.filter(p => p.group === window.advancedFilters.group);
+                }
+            }
 
             if(list.length === 0) { 
-                if(tbody) tbody.innerHTML = `<tr><td colSpan="6" class="py-20 text-center text-slate-400"><div class="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i data-lucide="search-x" class="w-12 h-12 text-slate-300"></i></div><p class="font-bold text-lg text-slate-500">ไม่มีข้อมูลแสดงผล</p></td></tr>`; 
+                if(tbody) tbody.innerHTML = `<tr><td colSpan="6" class="py-20 text-center text-slate-400"><div class="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i data-lucide="search-x" class="w-12 h-12 text-slate-300"></i></div><p class="font-bold text-lg text-slate-500">ไม่มีข้อมูลแสดงผลตามเงื่อนไขที่เลือก</p></td></tr>`; 
                 lucide.createIcons();
                 window.renderCharts(cNeuro, cMed, cImc, cPallia, active);
                 return; 
@@ -734,8 +789,8 @@
                             <td class="px-8 py-5"><div class="text-sm font-medium text-slate-600 flex gap-2 items-center">${badge} <span>${p.reason}</span></div><div class="text-xs text-slate-400 mt-1.5">${dateText} น.</div>${imcNotice}${palliaNotice}</td>
                             <td class="px-8 py-5 text-right no-print">
                                 <div class="flex justify-end gap-2.5 opacity-100 lg:opacity-30 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                    <button onclick="window.deletePatient('${p.hn}')" class="p-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl hover:bg-rose-100 shadow-sm transition-all" title="ลบข้อมูลผู้ป่วย"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                    <button onclick="window.deletePatient('${p.hn}')" class="p-2.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl hover:bg-rose-100 shadow-sm transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                     <button onclick="window.openManageModal('${p.hn}')" class="px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-black shadow-md flex items-center gap-1.5 transition-all">จัดการ <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                                 </div>
                             </td>
@@ -750,8 +805,8 @@
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm px-3.5 py-1.5 rounded-xl border bg-slate-50 text-slate-600">${p.group}</span></td>
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
                             <td class="px-8 py-5 text-center no-print">
-                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 } else if(window.currentFilter === 'Special_Care') {
@@ -766,8 +821,8 @@
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
                             <td class="px-8 py-5 text-sm text-slate-600">${p.reason||'-'}</td>
                             <td class="px-8 py-5 text-center no-print">
-                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 } else {
@@ -784,99 +839,14 @@
                             <td class="px-8 py-5 text-center">${outLabel}<div class="text-sm font-medium text-slate-500 mt-2.5">${p.reason||'-'}</div></td>
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
                             <td class="px-8 py-5 text-center no-print">
-                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2" title="แก้ไขข้อมูล"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors" title="ลบรายการนี้"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                                <button onclick="window.openEditModal('${logId}')" class="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 shadow-sm transition-all mr-2"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <button onclick="window.deleteLog('${logId}', '${p.hn}')" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                             </td>
                         </tr>`;
                 }
             });
             lucide.createIcons();
             window.renderCharts(cNeuro, cMed, cImc, cPallia, active);
-        };
-
-        window.renderCharts = (neuro, med, imc, pallia, activeData = []) => {
-            const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-            setTxt('mini-neuro', neuro); setTxt('mini-med', med); setTxt('mini-imc', imc); setTxt('mini-palliative', pallia);
-
-            // Donut Chart
-            const dCtx = document.getElementById('donutChart')?.getContext('2d'); 
-            if(dCtx) {
-                if(window.donutChartInstance) window.donutChartInstance.destroy();
-                const total = neuro + med + imc + pallia;
-                const hasData = total > 0;
-                window.donutChartInstance = new Chart(dCtx, {
-                    type: 'doughnut', data: { labels: hasData ? ['Neuro', 'Med', 'IMC', 'Palliative'] : ['ว่าง'], datasets: [{ data: hasData ? [neuro, med, imc, pallia] : [1], backgroundColor: hasData ? ['#3B82F6', '#F59E0B', '#10B981', '#A855F7'] : ['#e2e8f0'], borderWidth: 0, hoverOffset: 4 }] },
-                    options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: {enabled: hasData} }, animation: { animateScale: true } }
-                });
-            }
-
-            // Line Chart
-            const lCtx = document.getElementById('lineChart')?.getContext('2d'); 
-            if(lCtx) {
-                if(window.lineChartInstance) window.lineChartInstance.destroy();
-                const labels = [], inD = [], outD = [];
-                for(let i=6; i>=0; i--) {
-                    const d = new Date(); d.setDate(d.getDate() - i); const dStr = d.toISOString().split('T')[0];
-                    labels.push(`${d.getDate()}/${d.getMonth()+1}`); let din=0, dout=0;
-                    window.logs.forEach(l => { if(l.date===dStr){ if(l.action.startsWith('IN'))din++; if(['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action))dout++; } });
-                    inD.push(din); outD.push(dout);
-                }
-                window.lineChartInstance = new Chart(lCtx, {
-                    type: 'line', data: { labels, datasets: [{ label: 'รับเข้า (In)', data: inD, borderColor: '#007A86', backgroundColor: 'rgba(0,122,134,0.1)', fill: true, tension:0.4, borderWidth: 3, pointBackgroundColor: '#007A86', pointRadius: 4 }, { label: 'ย้ายออก (Out)', data: outD, borderColor: '#94a3b8', tension:0.4, borderWidth: 3, borderDash: [5, 5], pointBackgroundColor: '#94a3b8', pointRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { border: {dash: [4, 4]}, grid: { color: '#f1f5f9' }, beginAtZero: true, ticks: {stepSize: 1} } } }
-                });
-            }
-
-            // Diagnosis Chart
-            const diagCtx = document.getElementById('diagChart')?.getContext('2d');
-            if(diagCtx && activeData) {
-                const diagCount = {};
-                activeData.forEach(p => {
-                    if(p.diagnosis) {
-                        const d = p.diagnosis.split(',')[0].trim();
-                        diagCount[d] = (diagCount[d] || 0) + 1;
-                    }
-                });
-                const sortedDiag = Object.entries(diagCount).sort((a,b) => b[1] - a[1]).slice(0, 5);
-                const diagLabels = sortedDiag.map(x => x[0]);
-                const diagDataValues = sortedDiag.map(x => x[1]);
-
-                if(window.diagChartInstance) window.diagChartInstance.destroy();
-                window.diagChartInstance = new Chart(diagCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: diagLabels.length ? diagLabels : ['ไม่มีข้อมูล'],
-                        datasets: [{
-                            label: 'จำนวนผู้ป่วย (ราย)',
-                            data: diagDataValues.length ? diagDataValues : [0],
-                            backgroundColor: '#007A86',
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Sarabun'} } },
-                            y: { ticks: { font: {family: 'Sarabun', size: 14, weight: 'bold'} } }
-                        }
-                    }
-                });
-            }
-
-            // Special Care Stats
-            let imcM = 0, palM = 0;
-            const curMonth = new Date().toISOString().substring(0,7);
-            window.logs.forEach(l => {
-                if(l.date.startsWith(curMonth)) {
-                    if(l.action === 'ENTER_IMC') imcM++;
-                    if(l.action === 'ENTER_PALLIATIVE') palM++;
-                }
-            });
-            setTxt('stat-imc-month', imcM);
-            setTxt('stat-pal-month', palM);
         };
 
         // -------------------------------------------------------------------
@@ -913,15 +883,8 @@
             const actNode = document.querySelector('input[name="qaAction"]:checked'); if(!actNode) return window.showToast('แจ้งเตือน', 'กรุณาเลือกประเภทรายการ', 'error');
             const action = actNode.value; const hn = document.getElementById('qa-hn').value;
             const pt = window.computePatientFlow().active.find(p => p.hn === hn);
-            
-            let group = pt.group;
-            if(action === 'CHANGE_GROUP') {
-                const groupNode = document.querySelector('input[name="qaGroup"]:checked');
-                if(!groupNode) return window.showToast('แจ้งเตือน', 'กรุณาเลือกกลุ่มที่ต้องการสลับ', 'error');
-                group = groupNode.value;
-            }
 
-            const log = { ...pt, id: Math.random().toString(36).substr(2,9), group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
+            const log = { ...pt, id: Math.random().toString(36).substr(2,9), action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
             delete log.fbId; 
 
             if(window.isCloudMode) await addDoc(window.collectionRef, log); else { window.logs.push(log); localStorage.setItem('wardLogsV8', JSON.stringify(window.logs)); window.updateDashboard(); }
