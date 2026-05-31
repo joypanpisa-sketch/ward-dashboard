@@ -539,15 +539,14 @@
         // =========================================================================
         // 🔴 นำโค้ด Firebase Config ของคุณ มาวางทับตรงนี้ 🔴
         // =========================================================================
-       const firebaseConfig = {
-  apiKey: "AIzaSyDwhXexpsTbbYMn6hV-MzQ95iDuCo40usc",
-  authDomain: "patient-s-register---ward-6.firebaseapp.com",
-  projectId: "patient-s-register---ward-6",
-  storageBucket: "patient-s-register---ward-6.firebasestorage.app",
-  messagingSenderId: "624738994232",
-  appId: "1:624738994232:web:e9165b9364250f31f63ecd",
-  measurementId: "G-2M9FG83SVM"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSy_YOUR_API_KEY",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef"
+        };
         // =========================================================================
 
         window.TOTAL_BEDS = 28;
@@ -1145,10 +1144,31 @@
         window.exportToCSV = () => {
             const active = window.computePatientFlow().active;
             if(active.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออก', 'error'); return; }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,วันที่รับเข้า,หมายเหตุ\n";
-            active.forEach((p, i) => { csvContent += `${i+1},"${p.hn}","${p.patientName}","${p.age}","${p.sex}","${p.diagnosis}","${p.group}","${new Date(p.timestamp).toLocaleDateString('th-TH')}","${p.reason||'-'}"\n`; });
-            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `Ward_Patients_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            
+            // เพิ่มคอลัมน์ แพทย์, สิทธิ, วันนอน (LOS), วันที่เข้า IMC, วันที่เข้า Palliative
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,แพทย์เจ้าของไข้,สิทธิการรักษา,วันที่รับเข้า,วันนอน (LOS),วันที่เข้า IMC,วันที่เข้า Palliative,หมายเหตุ\n";
+            
+            active.forEach((p, i) => { 
+                // คำนวณวันนอน
+                const admitDate = new Date(p.timestamp);
+                const todayDate = new Date();
+                const diffTime = Math.abs(todayDate - admitDate);
+                const los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // วันที่เข้า IMC / PC
+                const imcDate = p.imcArrivalDate ? new Date(p.imcArrivalDate).toLocaleDateString('th-TH') : '-';
+                const pcDate = p.palliativeArrivalDate ? new Date(p.palliativeArrivalDate).toLocaleDateString('th-TH') : '-';
+                const admitDateStr = admitDate.toLocaleDateString('th-TH');
+                
+                csvContent += `${i+1},"${p.hn}","${p.patientName}","${p.age||'-'}","${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':'-'}","${p.diagnosis||'-'}","${p.group}","${p.doctor||'-'}","${p.insurance||'-'}","${admitDateStr}","${los}","${imcDate}","${pcDate}","${p.reason||'-'}"\n`; 
+            });
+            
+            const link = document.createElement("a"); 
+            link.setAttribute("href", encodeURI(csvContent)); 
+            link.setAttribute("download", `Ward_Patients_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link);
         };
 
         document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
