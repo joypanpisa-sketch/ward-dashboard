@@ -52,8 +52,11 @@
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -5px rgba(0,0,0,0.06); }
 
         @media print {
-            body, html { background: white !important; height: auto !important; overflow: visible !important; }
-            #sidebar, header, .no-print, #dashboard-views, #view-dashboard { display: none !important; }
+            /* 1. จัดหน้ากระดาษเป็นแนวนอน A4 พร้อม Margin */
+            @page { size: A4 landscape; margin: 15mm; }
+            
+            body, html { background: white !important; height: auto !important; overflow: visible !important; font-size: 12pt !important; }
+            #sidebar, header, .no-print, #dashboard-views, #view-dashboard, #toast, #cloudConfigModal { display: none !important; }
             
             #main-content, #view-patients, #view-patients > div, .overflow-auto, .overflow-y-auto, .flex-1, .h-full, .h-screen { 
                 height: auto !important; 
@@ -63,14 +66,56 @@
                 position: static !important;
                 box-shadow: none !important;
                 border: none !important;
+                background: transparent !important;
             }
             
-            .print-header { display: block !important; text-align: center; margin-bottom: 20px; padding-top: 10px; }
-            table { width: 100% !important; border-collapse: collapse; page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            /* 2. หัวกระดาษรายงานแบบมืออาชีพ (Professional Header) */
+            .print-header { 
+                display: flex !important; 
+                flex-direction: column; 
+                align-items: center; 
+                text-align: center; 
+                margin-bottom: 20px; 
+                padding-bottom: 15px; 
+                border-bottom: 2px solid #007A86; 
+            }
+            .print-header-top { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px; }
+            #print-title { font-size: 18pt !important; font-weight: bold; color: #007A86 !important; margin: 0; }
+            .print-header h2 { font-size: 14pt !important; color: #334155 !important; font-weight: 600; margin: 0; }
+            #print-date { font-size: 11pt !important; color: #64748b !important; margin-top: 5px; }
+
+            /* 3. จัดการตารางไม่ให้ตกขอบ (Prevent Overflow) */
+            table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; margin-top: 10px; }
             thead { display: table-header-group; }
-            table th { background-color: #f8fafc !important; color: #0f172a !important; font-size: 14px !important; border-bottom: 2px solid #cbd5e1; }
-            table td { font-size: 14px !important; border-bottom: 1px solid #e2e8f0; padding: 10px !important; }
+            tr { page-break-inside: avoid !important; page-break-after: auto; }
+            
+            table th { 
+                background-color: #f8fafc !important; 
+                color: #0f172a !important; 
+                font-size: 11pt !important; 
+                font-weight: bold !important;
+                border: 1px solid #94a3b8 !important; 
+                padding: 10px 8px !important; 
+                white-space: normal !important; 
+            }
+            table td { 
+                font-size: 10pt !important; /* ปรับฟอนต์ตารางให้พอดีหน้า */
+                border: 1px solid #cbd5e1 !important; 
+                padding: 8px !important; 
+                white-space: normal !important; /* สำคัญมาก! ปลดล็อคไม่ให้ข้อความยาวทะลุขอบ */
+                word-wrap: break-word !important;
+                vertical-align: top;
+            }
+
+            /* เปลี่ยนป้ายสี เป็นกรอบเปล่าๆ ประหยัดหมึกพิมพ์ */
+            span[class*="bg-"] { 
+                background: transparent !important; 
+                border: 1px solid #64748b !important; 
+                color: #0f172a !important; 
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+            }
+
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
         .print-header { display: none; }
@@ -160,10 +205,14 @@
             </div>
         </header>
 
+        <!-- Print Header -->
         <div class="print-header">
-            <h1 class="text-3xl font-bold" id="print-title">รายงานสรุปข้อมูลหอผู้ป่วย</h1>
-            <h2 class="text-xl mt-2 text-slate-600">หอผู้ป่วยอายุรกรรมประสาท โรงพยาบาลประสาทเชียงใหม่</h2>
-            <p class="text-base mt-3 text-slate-500" id="print-date">ข้อมูล ณ วันที่: -</p>
+            <div class="print-header-top">
+                <i data-lucide="activity" style="width: 28px; height: 28px; color: #007A86;"></i>
+                <h1 id="print-title">รายงานสรุปข้อมูลหอผู้ป่วย</h1>
+            </div>
+            <h2>หอผู้ป่วยอายุรกรรมประสาท โรงพยาบาลประสาทเชียงใหม่</h2>
+            <p id="print-date">ข้อมูล ณ วันที่: -</p>
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
