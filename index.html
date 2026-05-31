@@ -142,9 +142,11 @@
             </div>
             
             <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                <button onclick="window.openModal('cloudConfigModal')" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors">
-                    <span id="cloud-indicator" class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-slate-400"></div> ออฟไลน์โหมด</span>
-                </button>
+                <!-- 🟢 เปลี่ยนปุ่มตรงนี้เป็นป้าย "ออนไลน์" ถาวร 🟢 -->
+                <div class="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm">
+                    <span class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)</span>
+                </div>
+                
                 <div class="w-px h-8 bg-slate-200 hidden md:block mx-2"></div>
                 <button onclick="window.print()" class="hidden lg:flex items-center justify-center w-12 h-12 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition shadow-sm" title="พิมพ์รายงาน">
                     <i data-lucide="printer" class="w-6 h-6"></i>
@@ -179,7 +181,6 @@
                         </div>
                         
                         <div class="flex w-full lg:w-auto gap-3 mb-4 flex-wrap md:flex-nowrap">
-                            <!-- เพิ่ม Filter แผนกตรงนี้ -->
                             <div class="relative w-full md:w-36 shrink-0 hidden md:block">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="filter" class="w-4 h-4 text-slate-400"></i></div>
                                 <select id="groupFilterSelect" onchange="window.handleSearch()" class="block w-full pl-9 pr-4 py-3 text-sm border border-slate-200 rounded-2xl outline-none focus:border-primary bg-slate-50 cursor-pointer font-medium text-slate-700">
@@ -190,7 +191,6 @@
                                     <option value="Palliative">Palliative</option>
                                 </select>
                             </div>
-                            <!-- Date Filter เดิม -->
                             <div class="relative w-full md:w-40 shrink-0 hidden md:block">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i></div>
                                 <select id="dateFilterSelect" onchange="window.handleSearch()" class="block w-full pl-9 pr-4 py-3 text-sm border border-slate-200 rounded-2xl outline-none focus:border-primary bg-slate-50 cursor-pointer font-medium text-slate-700">
@@ -200,22 +200,17 @@
                                     <option value="year">เฉพาะปีนี้</option>
                                 </select>
                             </div>
-                            <!-- Search เดิม เพิ่มรองรับการหาชื่อโรค -->
                             <div class="relative w-full md:w-64">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="w-5 h-5 text-slate-400"></i></div>
-                                <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา HN, ชื่อ, โรค, เตียง...">
+                                <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา HN, ชื่อ, โรค...">
                             </div>
                         </div>
                     </div>
                     
                     <div class="overflow-auto flex-1 bg-white">
                         <table class="w-full text-base text-left whitespace-nowrap">
-                            <thead class="text-sm text-slate-500 uppercase bg-slate-50/80 sticky top-0 z-10 shadow-sm" id="table-header">
-                                <!-- Injected via JS -->
-                            </thead>
-                            <tbody id="patient-table-body" class="divide-y divide-slate-100/80">
-                                <!-- Injected via JS -->
-                            </tbody>
+                            <thead class="text-sm text-slate-500 uppercase bg-slate-50/80 sticky top-0 z-10 shadow-sm" id="table-header"></thead>
+                            <tbody id="patient-table-body" class="divide-y divide-slate-100/80"></tbody>
                         </table>
                     </div>
                 </div>
@@ -225,7 +220,6 @@
                 
                 <div class="bg-white rounded-[2rem] shadow-soft border border-slate-100 p-8 md:p-10 relative overflow-hidden">
                     <div class="absolute right-0 top-0 w-80 h-80 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full -mr-10 -mt-10 z-0 pointer-events-none"></div>
-                    
                     <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
                         <div>
                             <div class="flex items-center gap-3 mb-2">
@@ -349,33 +343,25 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2 md:col-span-1">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">เลขเตียง <span class="text-red-500">*</span></label>
-                            <input type="text" id="addBed" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all font-bold text-primary" placeholder="เช่น 01, VIP-3">
-                        </div>
-                        <div class="space-y-2 md:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">รหัสผู้ป่วย (HN) <span class="text-red-500">*</span></label>
                             <input type="text" id="addHn" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all" placeholder="HN">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                            <input type="text" id="addName" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all" placeholder="ชื่อ นามสกุล">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                            <input type="text" id="addName" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all" placeholder="ชื่อ นามสกุล">
-                        </div>
-                        <div class="space-y-2">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">แพทย์เจ้าของไข้ <span class="text-red-500">*</span></label>
                             <input type="text" id="addDoctor" list="doctorList" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer" placeholder="เลือกหรือพิมพ์ชื่อแพทย์...">
                         </div>
-                    </div>
-
-                    <div class="grid grid-cols-4 gap-6">
-                        <div class="space-y-2 col-span-1"><label class="text-xs font-bold text-slate-500 uppercase tracking-widest">อายุ</label><input type="number" id="addAge" class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white transition-all"></div>
-                        <div class="space-y-2 col-span-1"><label class="text-xs font-bold text-slate-500 uppercase tracking-widest">เพศ</label><select id="addSex" class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-white outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
-                        <div class="space-y-2 col-span-2"><label class="text-xs font-bold text-slate-500 uppercase tracking-widest">สิทธิการรักษา</label>
-                            <select id="addInsurance" class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-white outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">สิทธิการรักษา <span class="text-red-500">*</span></label>
+                            <select id="addInsurance" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-white outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all">
                                 <option value="บัตรทอง (UC)">บัตรทอง (UC)</option>
                                 <option value="เบิกจ่ายตรง (CSMBS)">เบิกจ่ายตรง (CSMBS)</option>
                                 <option value="ประกันสังคม (SSO)">ประกันสังคม (SSO)</option>
@@ -384,12 +370,16 @@
                             </select>
                         </div>
                     </div>
-                    
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">การวินิจฉัยโรค (พิมพ์หรือเลือก) <span class="text-red-500">*</span></label>
-                        <input type="text" id="addDiag" list="diagList" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer" placeholder="ระบุโรค...">
-                    </div>
 
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="space-y-2 col-span-1"><label class="text-xs font-bold text-slate-500 uppercase tracking-widest">อายุ</label><input type="number" id="addAge" class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white transition-all"></div>
+                        <div class="space-y-2 col-span-1"><label class="text-xs font-bold text-slate-500 uppercase tracking-widest">เพศ</label><select id="addSex" class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-white outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>
+                        <div class="space-y-2 col-span-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">การวินิจฉัยโรค (พิมพ์หรือเลือก) <span class="text-red-500">*</span></label>
+                            <input type="text" id="addDiag" list="diagList" required class="w-full px-5 py-3.5 text-lg rounded-xl border border-slate-200 bg-slate-50 outline-none focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer" placeholder="ระบุโรค...">
+                        </div>
+                    </div>
+                    
                     <div class="space-y-3">
                         <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">วอร์ดหลักที่ครองเตียง *</label>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -442,6 +432,7 @@
                         
                         <div class="col-span-2 sm:col-span-3 h-px bg-slate-200 my-2"></div>
 
+                        <!-- Clinical Milestones (Stamps) -->
                         <label class="cursor-pointer col-span-2 sm:col-span-3"><input type="radio" name="qaAction" value="ENTER_IMC" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-teal-500 peer-checked:bg-teal-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="check-circle" class="w-6 h-6 text-teal-600"></i><div class="font-bold text-sm text-teal-700">🟢 แสตมป์เข้า IMC <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
                         <label class="cursor-pointer col-span-2 sm:col-span-3"><input type="radio" name="qaAction" value="ENTER_PALLIATIVE" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="heart-handshake" class="w-6 h-6 text-purple-600"></i><div class="font-bold text-sm text-purple-700">🟣 แสตมป์ Palliative <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
                     </div>
@@ -471,8 +462,8 @@
                 <input type="hidden" id="editLogId">
 
                 <div class="grid grid-cols-2 gap-5">
-                    <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">เลขเตียง</label><input type="text" id="editBed" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold text-blue-700"></div>
                     <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">ชื่อ-นามสกุล</label><input type="text" id="editName" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-slate-50 focus:bg-white"></div>
+                    <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">แพทย์เจ้าของไข้</label><input type="text" id="editDoctor" list="doctorList" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-slate-50 focus:bg-white cursor-pointer" placeholder="เลือกหรือพิมพ์ชื่อแพทย์..."></div>
                 </div>
                 
                 <div class="grid grid-cols-3 gap-5">
@@ -489,10 +480,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">แพทย์เจ้าของไข้</label><input type="text" id="editDoctor" list="doctorList" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-slate-50 focus:bg-white cursor-pointer" placeholder="เลือกหรือพิมพ์ชื่อแพทย์..."></div>
-                    <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">การวินิจฉัย</label><input type="text" id="editDiag" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-slate-50 focus:bg-white"></div>
-                </div>
+                <div class="space-y-2"><label class="text-sm font-bold text-slate-500 uppercase">การวินิจฉัย</label><input type="text" id="editDiag" class="w-full px-5 py-3.5 text-base border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-slate-50 focus:bg-white"></div>
 
                 <div class="h-px bg-slate-200 w-full my-4"></div>
 
@@ -504,26 +492,6 @@
             <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 rounded-b-3xl">
                 <button onclick="window.closeModal('editModal')" class="px-6 py-3 text-base font-bold bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-100 transition-colors shadow-sm">ยกเลิก</button>
                 <button onclick="window.submitEditForm()" class="px-8 py-3 text-base font-bold text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 transition-colors flex gap-2 items-center"><i data-lucide="save" class="w-5 h-5"></i> บันทึกข้อมูล</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. CLOUD CONFIG MODAL (SMART SCANNER) -->
-    <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-4 no-print opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
-            <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center">
-                <h2 class="text-xl font-bold flex gap-3 items-center"><i data-lucide="cloud" class="w-6 h-6 text-[#4FD1C5]"></i> ตั้งค่า Cloud (Real-time)</h2>
-                <button onclick="window.closeModal('cloudConfigModal')" class="text-slate-400 hover:text-white bg-white/10 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-8 space-y-4">
-                <p class="text-base text-slate-600 font-medium leading-relaxed">วางรหัส Firebase Config ที่ได้จากระบบเพื่อซิงค์ข้อมูลผู้ป่วยแบบ Real-time</p>
-                <textarea id="firebaseConfigInput" rows="5" class="w-full mt-2 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" placeholder="วางโค้ดตรงนี้ (ระบบจะสแกนหา apiKey ให้อัตโนมัติ)..."></textarea>
-            </div>
-            <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between rounded-b-3xl">
-                <button onclick="window.disconnectCloud()" class="text-base font-bold text-rose-600 hover:text-rose-800 transition-colors px-4 py-2 rounded-xl hover:bg-rose-50">กลับไปใช้ออฟไลน์</button>
-                <button id="btn-connect" onclick="window.connectCloudFromInput()" class="px-8 py-3 text-base font-bold text-white bg-[#008290] hover:bg-[#006B77] rounded-xl shadow-md transition-colors flex items-center gap-2">
-                    <i data-lucide="wifi" class="w-5 h-5"></i> เชื่อมต่อ
-                </button>
             </div>
         </div>
     </div>
@@ -541,36 +509,59 @@
         <option value="แพทย์เวร อายุรกรรมทั่วไป"></option>
     </datalist>
 
-    <script>
-        // Pre-module fallback functions
-        window.connectCloudFromInput = () => { alert("ระบบกำลังเตรียมความพร้อม (โหลด Cloud) กรุณารอสักครู่..."); };
-        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
-    </script>
-
     <!-- Application Script (Modular & Reliable) -->
     <script type="module">
-        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // =========================================================================
+        // 🔴 นำโค้ด Firebase Config ของคุณ มาวางทับตรงนี้ 🔴
+        // =========================================================================
+        const firebaseConfig = {
+  apiKey: "AIzaSyDwhXexpsTbbYMn6hV-MzQ95iDuCo40usc",
+  authDomain: "patient-s-register---ward-6.firebaseapp.com",
+  projectId: "patient-s-register---ward-6",
+  storageBucket: "patient-s-register---ward-6.firebasestorage.app",
+  messagingSenderId: "624738994232",
+  appId: "1:624738994232:web:e9165b9364250f31f63ecd",
+  measurementId: "G-2M9FG83SVM"
+};
+        // =========================================================================
 
         // Global State Binding
         window.TOTAL_BEDS = 28;
-        window.logs = JSON.parse(localStorage.getItem('wardLogsV9')) || [];
+        window.logs = []; 
         window.currentFilter = 'Active_All';
         window.searchQuery = '';
         window.dateFilter = 'all'; 
-        window.groupFilterVal = 'all'; // <--- เพิ่มตัวแปรสำหรับจำค่าแผนก
-        window.isCloudMode = false;
+        window.groupFilterVal = 'all'; 
+        window.isCloudMode = true; // บังคับเป็น Cloud Mode เสมอ
         window.db = null;
         window.collectionRef = null;
         window.donutChartInstance = null;
         window.lineChartInstance = null;
         window.diagChartInstance = null;
 
-        // Ensure Icons load
         lucide.createIcons();
 
+        // 1. Initialize Firebase 
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.db = getFirestore(app);
+            window.collectionRef = collection(window.db, 'ward_platform_data');
+            
+            // Start Real-time listener
+            onSnapshot(window.collectionRef, (snap) => {
+                window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
+                window.updateDashboard();
+            });
+        } catch (error) {
+            console.error("Firebase Error:", error);
+            alert("ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบโค้ด Firebase Config อีกครั้ง");
+        }
+
         // -------------------------------------------------------------------
-        // 1. UI & Modal Helpers
+        // UI & Modal Helpers
         // -------------------------------------------------------------------
         window.openModal = (id) => { 
             const el = document.getElementById(id); 
@@ -644,7 +635,6 @@
             window.updateDashboard();
         };
 
-        // <--- อัปเดตฟังก์ชันค้นหาให้เช็คค่า Dropdown วอร์ด ด้วย --->
         window.handleSearch = () => { 
             const input = document.getElementById('searchInput');
             if(input) window.searchQuery = input.value.toLowerCase(); 
@@ -720,7 +710,7 @@
                 } else if(log.action === 'CHANGE_GROUP') {
                     if(map[log.hn]) map[log.hn].group = log.group;
                 } else {
-                    map[log.hn] = {...log}; // IN_NEW / IN_TRANSFER
+                    map[log.hn] = {...log}; 
                 }
             });
 
@@ -810,7 +800,6 @@
                 list = window.logs.filter(l => l.action === 'ENTER_PALLIATIVE' && isDateInRange(l.timestamp, window.dateFilter)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             }
 
-            // <--- ตัดเกรดรายชื่อจากการพิมพ์ และ Dropdown วอร์ด --->
             if(window.groupFilterVal && window.groupFilterVal !== 'all') {
                 list = list.filter(p => p.group === window.groupFilterVal);
             }
@@ -818,7 +807,6 @@
                 list = list.filter(p => 
                     p.hn?.toLowerCase().includes(window.searchQuery) || 
                     p.patientName?.toLowerCase().includes(window.searchQuery) || 
-                    p.bedNo?.toLowerCase().includes(window.searchQuery) ||
                     p.diagnosis?.toLowerCase().includes(window.searchQuery)
                 );
             }
@@ -855,7 +843,7 @@
 
                     if(tbody) tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors group">
-                            <td class="px-8 py-5 text-center text-slate-400 font-bold text-base">${p.bedNo ? `<div class="text-xs bg-slate-800 text-white rounded px-2 py-1 mb-1">เตียง ${p.bedNo}</div>` : ''}${i+1}</td>
+                            <td class="px-8 py-5 text-center text-slate-400 font-bold text-base">${i+1}</td>
                             <td class="px-8 py-5">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-black text-lg shrink-0 shadow-sm">${p.patientName.charAt(0)}</div>
@@ -882,7 +870,7 @@
                     if(tbody) tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 border-b border-slate-100">
                             <td class="px-8 py-5 text-center text-slate-400 font-bold text-base">${i+1}</td>
-                            <td class="px-8 py-5"><div class="font-bold text-slate-800 text-lg">${p.patientName}</div><div class="text-sm text-slate-500 mt-1">HN: ${p.hn} | เตียง: ${p.bedNo||'-'}</div></td>
+                            <td class="px-8 py-5"><div class="font-bold text-slate-800 text-lg">${p.patientName}</div><div class="text-sm text-slate-500 mt-1">HN: ${p.hn}</div></td>
                             <td class="px-8 py-5">${badge} <div class="text-sm font-semibold text-slate-600 mt-1.5">${p.reason||'-'}</div></td>
                             <td class="px-8 py-5 text-center"><span class="font-bold text-sm px-3.5 py-1.5 rounded-xl border bg-slate-50 text-slate-600">${p.group}</span></td>
                             <td class="px-8 py-5 text-sm font-medium text-slate-600">${dateText} น.</td>
@@ -1043,7 +1031,6 @@
                 sex: document.getElementById('addSex').value, 
                 diagnosis: document.getElementById('addDiag').value, 
                 group: document.querySelector('input[name="addGroup"]:checked').value, 
-                bedNo: document.getElementById('addBed').value,
                 doctor: document.getElementById('addDoctor').value,
                 insurance: document.getElementById('addInsurance').value,
                 action, 
@@ -1052,13 +1039,7 @@
                 date: new Date().toISOString().split('T')[0] 
             };
             
-            if(window.isCloudMode) {
-                await addDoc(window.collectionRef, log); 
-            } else { 
-                window.logs.push(log); 
-                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
-                window.updateDashboard(); 
-            }
+            await addDoc(window.collectionRef, log); 
             window.closeModal('entryModal'); window.showToast('รับผู้ป่วยสำเร็จ', `HN: ${hn}`);
         };
 
@@ -1075,16 +1056,10 @@
                 group = groupNode.value;
             }
 
-            const log = { ...pt, id: Math.random().toString(36).substr(2,9), group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
+            const log = { ...pt, group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
             delete log.fbId; 
 
-            if(window.isCloudMode) {
-                await addDoc(window.collectionRef, log); 
-            } else { 
-                window.logs.push(log); 
-                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
-                window.updateDashboard(); 
-            }
+            await addDoc(window.collectionRef, log); 
             window.closeModal('quickActionModal'); window.showToast('ทำรายการสำเร็จ', pt.patientName);
         };
 
@@ -1122,26 +1097,17 @@
             const timeVal = document.getElementById('editTime').value;
             const newTimestamp = new Date(`${dateVal}T${timeVal}:00`).toISOString();
             
-            if(window.isCloudMode) {
-                const q = query(window.collectionRef, where("hn", "==", hn)); 
-                const snap = await getDocs(q);
-                snap.forEach(d => {
-                    const data = d.data();
-                    let updates = { patientName: name, age: age, sex: sex, diagnosis: diag, doctor: doctor, insurance: insurance };
-                    if (d.id === logId || data.id === logId || data.fbId === logId) {
-                        updates.timestamp = newTimestamp;
-                        updates.date = dateVal;
-                    }
-                    updateDoc(d.ref, updates);
-                });
-            } else { 
-                window.logs.forEach(l => { 
-                    if(l.hn === hn) { l.patientName = name; l.age = age; l.sex = sex; l.diagnosis = diag; l.doctor = doctor; l.insurance = insurance; }
-                    if(l.id === logId || l.fbId === logId) { l.timestamp = newTimestamp; l.date = dateVal; }
-                }); 
-                localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
-                window.updateDashboard(); 
-            }
+            const q = query(window.collectionRef, where("hn", "==", hn)); 
+            const snap = await getDocs(q);
+            snap.forEach(d => {
+                const data = d.data();
+                let updates = { patientName: name, age: age, sex: sex, diagnosis: diag, doctor: doctor, insurance: insurance };
+                if (d.id === logId || data.id === logId || data.fbId === logId) {
+                    updates.timestamp = newTimestamp;
+                    updates.date = dateVal;
+                }
+                updateDoc(d.ref, updates);
+            });
             window.closeModal('editModal'); 
             window.showToast('สำเร็จ', 'อัปเดตข้อมูลและเวลาเรียบร้อยแล้ว');
         };
@@ -1165,26 +1131,14 @@
             const { type, id } = window.pendingDelete;
             
             if (type === 'patient') {
-                if(window.isCloudMode) {
-                    const q = query(window.collectionRef, where("hn", "==", id)); 
-                    const snap = await getDocs(q);
-                    snap.forEach(d => deleteDoc(d.ref));
-                } else { 
-                    window.logs = window.logs.filter(l => l.hn !== id); 
-                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
-                    window.updateDashboard(); 
-                }
+                const q = query(window.collectionRef, where("hn", "==", id)); 
+                const snap = await getDocs(q);
+                snap.forEach(d => deleteDoc(d.ref));
                 window.showToast('ลบสำเร็จ', 'ข้อมูลถูกจัดการออกจากระบบแล้ว');
             } else if (type === 'log') {
-                if(window.isCloudMode) {
-                    const logToDel = window.logs.find(l => l.id === id || l.fbId === id);
-                    if(logToDel && logToDel.fbId) {
-                        await deleteDoc(doc(window.db, 'ward_platform_data', logToDel.fbId));
-                    }
-                } else { 
-                    window.logs = window.logs.filter(l => l.id !== id && l.fbId !== id); 
-                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs)); 
-                    window.updateDashboard(); 
+                const logToDel = window.logs.find(l => l.id === id || l.fbId === id);
+                if(logToDel && logToDel.fbId) {
+                    await deleteDoc(doc(window.db, 'ward_platform_data', logToDel.fbId));
                 }
                 window.showToast('ลบสำเร็จ', 'ลบประวัติรายการแล้ว');
             }
@@ -1202,94 +1156,20 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
-        // --- Cloud Initialization ---
-        window.connectCloudFromInput = async () => {
-            const btn = document.getElementById('btn-connect');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> กำลังเชื่อมต่อ...';
-            btn.disabled = true;
-            
-            try {
-                const configStr = document.getElementById('firebaseConfigInput').value;
-                if(!configStr.trim()) throw new Error("กรุณาวางโค้ดในช่องว่างก่อนกดเชื่อมต่อ");
-                
-                // Smart Scanner (Extracts keys even if user copied it poorly)
-                const extract = (key) => {
-                    const match = configStr.match(new RegExp(`${key}\\s*:\\s*["']([^"']+)["']`));
-                    return match ? match[1] : null;
-                };
-                
-                const config = {
-                    apiKey: extract('apiKey'),
-                    authDomain: extract('authDomain'),
-                    projectId: extract('projectId'),
-                    storageBucket: extract('storageBucket'),
-                    messagingSenderId: extract('messagingSenderId'),
-                    appId: extract('appId')
-                };
-
-                if (!config.apiKey || !config.projectId) {
-                    throw new Error("โค้ดไม่ครบถ้วน! ขาด apiKey หรือ projectId (แนะนำให้ก๊อปปี้มาใหม่ทั้งหมด)");
-                }
-
-                // Initialize safely
-                const app = !getApps().length ? initializeApp(config) : getApp();
-                window.db = getFirestore(app);
-                window.collectionRef = collection(window.db, 'ward_platform_data');
-                window.isCloudMode = true;
-                
-                localStorage.setItem('userFirebaseConfig', JSON.stringify(config));
-                
-                window.closeModal('cloudConfigModal');
-                window.showToast('เชื่อมต่อสำเร็จ', 'ข้อมูลถูกดึงมาและซิงค์ Real-time แล้ว');
-                
-                const cloudBtn = document.getElementById('cloud-status-btn');
-                if(cloudBtn) cloudBtn.className = "flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors";
-                const cloudInd = document.getElementById('cloud-indicator');
-                if(cloudInd) cloudInd.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)`;
-
-                onSnapshot(window.collectionRef, (snap) => {
-                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
-                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs));
-                    window.updateDashboard();
-                });
-                
-            } catch(e) {
-                window.showToast('ข้อผิดพลาด', e.message || 'รหัสไม่ถูกต้อง', 'error');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                lucide.createIcons();
-            }
-        };
-
-        window.disconnectCloud = () => { localStorage.removeItem('userFirebaseConfig'); location.reload(); };
-
-        // Initial Load Execution
+        // --- Cloud Auto-Connect ---
+        // (This replaces the old modal-based logic. It automatically runs on load.)
         document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
         
-        const savedConfigStr = localStorage.getItem('userFirebaseConfig');
-        if (savedConfigStr) {
-            try {
-                const config = JSON.parse(savedConfigStr);
-                const app = !getApps().length ? initializeApp(config) : getApp();
-                window.db = getFirestore(app);
-                window.collectionRef = collection(window.db, 'ward_platform_data');
-                window.isCloudMode = true;
-                
-                const cloudBtn = document.getElementById('cloud-status-btn');
-                if(cloudBtn) cloudBtn.className = "flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors";
-                const cloudInd = document.getElementById('cloud-indicator');
-                if(cloudInd) cloudInd.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)`;
-
-                onSnapshot(window.collectionRef, (snap) => {
-                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
-                    localStorage.setItem('wardLogsV9', JSON.stringify(window.logs));
-                    window.updateDashboard();
-                });
-            } catch(e) { window.updateDashboard(); }
-        } else {
-            window.updateDashboard();
+        try {
+            // ระบบจะ Initial Firebase จากตัวแปรที่ถูกตั้งค่าไว้ด้านบนสุดอัตโนมัติ
+            // ถ้า Firebase Config ไม่ถูกต้องจะตกมาที่ catch (Error)
+            onSnapshot(window.collectionRef, (snap) => {
+                window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
+                window.updateDashboard();
+            });
+        } catch(e) {
+            console.error(e);
+            alert("ไม่สามารถโหลดข้อมูลจาก Cloud ได้ กรุณาตรวจสอบโค้ด Firebase ของคุณครับ");
         }
 
     </script>
