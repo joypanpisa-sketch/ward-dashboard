@@ -526,6 +526,24 @@
         </div>
     </div>
 
+    <!-- 4. CLOUD CONFIG MODAL -->
+    <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-4 no-print opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
+            <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center">
+                <h2 class="text-xl font-bold flex gap-3 items-center"><i data-lucide="cloud" class="w-6 h-6 text-[#4FD1C5]"></i> ตั้งค่า Cloud (Real-time)</h2>
+                <button onclick="window.closeModal('cloudConfigModal')" class="text-slate-400 hover:text-white bg-white/10 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-8 space-y-4">
+                <p class="text-base text-slate-600 font-medium leading-relaxed">วางรหัส Firebase Config ที่ได้จากระบบเพื่อซิงค์ข้อมูลผู้ป่วยไปโชว์ที่จออื่นได้ทันทีแบบ Real-time</p>
+                <textarea id="firebaseConfigInput" rows="5" class="w-full mt-2 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" placeholder="const firebaseConfig = { ... };"></textarea>
+            </div>
+            <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between rounded-b-3xl">
+                <button onclick="window.disconnectCloud()" class="text-base font-bold text-rose-600 hover:text-rose-800 transition-colors px-4 py-2 rounded-xl hover:bg-rose-50">กลับไปใช้ออฟไลน์</button>
+                <button onclick="window.connectCloudFromInput()" class="px-8 py-3 text-base font-bold text-white bg-[#008290] hover:bg-[#006B77] rounded-xl shadow-md transition-colors flex items-center gap-2"><i data-lucide="wifi" class="w-5 h-5"></i> เชื่อมต่อ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Datalists -->
     <datalist id="diagList">
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
@@ -564,6 +582,47 @@
         window.diagChartInstance = null;
 
         lucide.createIcons();
+
+        // ระบบตรวจสอบความถูกต้องของโค้ด Firebase อัตโนมัติ
+        if (firebaseConfig.projectId === "your-project") {
+            window.isCloudMode = false;
+            setTimeout(() => {
+                window.showToast('แจ้งเตือนการตั้งค่า', 'กรุณานำโค้ด Firebase ของคุณมาใส่ในไฟล์เพื่อเชื่อมต่อออนไลน์', 'error');
+                const cloudIndicator = document.getElementById('cloud-status-indicator');
+                if(cloudIndicator) {
+                    cloudIndicator.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></div> ออฟไลน์ (รอเปลี่ยนโค้ด)`;
+                    document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-rose-700 bg-rose-50 px-5 py-3 rounded-xl border border-rose-200 shadow-sm transition-colors duration-300";
+                }
+            }, 1000);
+            window.updateDashboard();
+        } else {
+            try {
+                window.isCloudMode = true;
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.collectionRef = collection(window.db, 'ward_platform_data');
+                
+                onSnapshot(window.collectionRef, (snap) => {
+                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
+                    window.updateDashboard();
+                }, (error) => {
+                    console.error("Firebase Snapshot Error:", error);
+                    if (error.code === 'permission-denied') {
+                        alert("⚠️ เชื่อมต่อฐานข้อมูลถูกปฏิเสธ (Permission Denied)\n\nสาเหตุ: ยังไม่ได้เปิดสิทธิ์ Rules ใน Firebase\n\nวิธีแก้:\n1. ไปที่เว็บ Firebase > เลือกเมนู Firestore Database\n2. ไปที่แท็บ Rules\n3. เปลี่ยนโค้ดเป็น: allow read, write: if true;\n4. กดปุ่ม Publish สีฟ้า");
+                        
+                        window.isCloudMode = false;
+                        document.getElementById('cloud-status-indicator').innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></div> ติดปัญหา Rules`;
+                        document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-amber-700 bg-amber-50 px-5 py-3 rounded-xl border border-amber-200 shadow-sm transition-colors duration-300";
+                        window.updateDashboard();
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                window.isCloudMode = false;
+                window.showToast("ข้อผิดพลาด", "ไม่สามารถเชื่อมต่อฐานข้อมูลได้", "error");
+                window.updateDashboard();
+            }
+        }
 
         window.openModal = (id) => { 
             const el = document.getElementById(id); 
@@ -660,8 +719,14 @@
         window.computePatientFlow = () => {
             const map = {};
             const sorted = [...window.logs].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            const dischargedList = [];
+            
             sorted.forEach(log => {
                 if(['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(log.action)) {
+                    // Extract true admit timestamp for LOS calculation before deleting from map
+                    const trueAdmitTs = map[log.hn] ? (map[log.hn].admitTimestamp || map[log.hn].timestamp) : log.timestamp;
+                    dischargedList.push({...log, admitTimestamp: trueAdmitTs});
                     delete map[log.hn];
                 } else if(log.action === 'ENTER_IMC') {
                     if(map[log.hn]) map[log.hn].imcArrivalDate = log.timestamp;
@@ -670,12 +735,15 @@
                 } else if(log.action === 'CHANGE_GROUP') {
                     if(map[log.hn]) map[log.hn].group = log.group;
                 } else {
-                    map[log.hn] = {...log}; 
+                    // IN_NEW or IN_TRANSFER - Preserve older admit timestamp if exists (though rare for same HN without discharge)
+                    map[log.hn] = {...log, admitTimestamp: map[log.hn]?.admitTimestamp || log.timestamp}; 
                 }
             });
+            
             const active = Object.values(map).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             const admittedLogs = window.logs.filter(l => ['IN_NEW', 'IN_TRANSFER'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            const discharged = window.logs.filter(l => ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const discharged = dischargedList.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
             return { active, admittedLogs, discharged };
         };
 
@@ -817,7 +885,6 @@
             let baseList = [];
             let reportTitle = "";
 
-            // เลือกฐานข้อมูลตั้งต้นตามแท็บที่กด
             if (window.currentFilter.startsWith('Active')) {
                 baseList = active;
                 reportTitle = "รายงานผู้ป่วยครองเตียง (Active Registry)";
@@ -843,15 +910,12 @@
             const printTitle = document.getElementById('print-title');
             if(printTitle) printTitle.innerText = reportTitle;
 
-            // ---- เริ่มกระบวนการกรองข้อมูล (Filter) ----
             let filteredList = baseList;
 
-            // 1. กรองตามแผนก
             if (window.groupFilterVal && window.groupFilterVal !== 'all') {
                 filteredList = filteredList.filter(p => p.group === window.groupFilterVal);
             }
 
-            // 2. กรองตามเวลา (รวมถึงกำหนดวันเอง)
             if (window.dateFilter && window.dateFilter !== 'all') {
                 const today = new Date();
                 filteredList = filteredList.filter(p => {
@@ -865,7 +929,7 @@
                     } else if (window.dateFilter === 'custom') {
                         const start = document.getElementById('startDateFilter').value;
                         const end = document.getElementById('endDateFilter').value;
-                        const logDateOnly = p.date; // YYYY-MM-DD
+                        const logDateOnly = p.date;
                         if (start && end) return logDateOnly >= start && logDateOnly <= end;
                         if (start) return logDateOnly >= start;
                         if (end) return logDateOnly <= end;
@@ -875,7 +939,6 @@
                 });
             }
 
-            // 3. กรองตามคำค้นหา (ค้นชื่อโรค, HN, ชื่อ)
             if (window.searchQuery) {
                 const q = window.searchQuery;
                 filteredList = filteredList.filter(p => 
@@ -885,12 +948,10 @@
                 );
             }
 
-            // อัปเดตป้ายบอกจำนวนที่กรองได้
             if(countDisplay) {
                 countDisplay.innerHTML = `<i data-lucide="bar-chart-2" class="w-4 h-4 mr-2"></i> พบข้อมูลทั้งหมด: ${filteredList.length} รายการ`;
             }
 
-            // ---- เริ่มเรนเดอร์ตาราง (Render Table) ----
             tbody.innerHTML = '';
             
             if (filteredList.length === 0) {
@@ -907,7 +968,6 @@
                     let badge = p.action==='IN_TRANSFER'?'<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-bold">รับย้าย</span>':'<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-bold">รับใหม่</span>';
                     let grpStyle = p.group==='Neuro'?'bg-blue-50 text-blue-700 border-blue-200':p.group==='Med'?'bg-amber-50 text-amber-700 border-amber-200':p.group==='IMC'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-purple-50 text-purple-700 border-purple-200';
                     
-                    // คำนวณวันนอน (LOS)
                     const admitDate = new Date(p.timestamp);
                     const todayDate = new Date();
                     const diffTime = Math.abs(todayDate - admitDate);
@@ -1143,30 +1203,108 @@
         };
 
         window.exportToCSV = () => {
-            const active = window.computePatientFlow().active;
-            if(active.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออก', 'error'); return; }
+            const { active, admittedLogs, discharged } = window.computePatientFlow();
+            let baseList = [];
             
-            // เพิ่มคอลัมน์ แพทย์, สิทธิ, วันนอน (LOS), วันที่เข้า IMC, วันที่เข้า Palliative
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,แพทย์เจ้าของไข้,สิทธิการรักษา,วันที่รับเข้า,วันนอน (LOS),วันที่เข้า IMC,วันที่เข้า Palliative,หมายเหตุ\n";
+            // เลือกฐานข้อมูลตั้งต้นตามแท็บที่กด
+            if (window.currentFilter.startsWith('Active')) baseList = active;
+            else if (window.currentFilter === 'Admit_History') baseList = admittedLogs;
+            else if (window.currentFilter === 'Discharged_History') baseList = discharged;
+            else if (window.currentFilter === 'Special_Care_IMC') baseList = window.logs.filter(l => l.action === 'ENTER_IMC').sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            else if (window.currentFilter === 'Special_Care_PC') baseList = window.logs.filter(l => l.action === 'ENTER_PALLIATIVE').sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            let filteredList = baseList;
+
+            // 1. กรองตามแผนก
+            if (window.groupFilterVal && window.groupFilterVal !== 'all') {
+                filteredList = filteredList.filter(p => p.group === window.groupFilterVal);
+            }
+
+            // 2. กรองตามเวลา
+            if (window.dateFilter && window.dateFilter !== 'all') {
+                const today = new Date();
+                filteredList = filteredList.filter(p => {
+                    const logDate = new Date(p.timestamp);
+                    if (window.dateFilter === 'today') return logDate.toDateString() === today.toDateString();
+                    if (window.dateFilter === 'month') return logDate.getMonth() === today.getMonth() && logDate.getFullYear() === today.getFullYear();
+                    if (window.dateFilter === 'year') return logDate.getFullYear() === today.getFullYear();
+                    if (window.dateFilter === 'custom') {
+                        const start = document.getElementById('startDateFilter').value;
+                        const end = document.getElementById('endDateFilter').value;
+                        const logDateOnly = p.date;
+                        if (start && end) return logDateOnly >= start && logDateOnly <= end;
+                        if (start) return logDateOnly >= start;
+                        if (end) return logDateOnly <= end;
+                    }
+                    return true;
+                });
+            }
+
+            // 3. กรองตามคำค้นหา
+            if (window.searchQuery) {
+                const q = window.searchQuery.toLowerCase();
+                filteredList = filteredList.filter(p => 
+                    (p.hn && p.hn.toLowerCase().includes(q)) || 
+                    (p.patientName && p.patientName.toLowerCase().includes(q)) || 
+                    (p.diagnosis && p.diagnosis.toLowerCase().includes(q))
+                );
+            }
+
+            if(filteredList.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออกในหมวดหมู่นี้', 'error'); return; }
             
-            active.forEach((p, i) => { 
-                // คำนวณวันนอน
-                const admitDate = new Date(p.timestamp);
-                const todayDate = new Date();
-                const diffTime = Math.abs(todayDate - admitDate);
-                const los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,แพทย์เจ้าของไข้,สิทธิการรักษา,วันที่รับเข้า,วันที่จำหน่าย,วันนอน (LOS),ประเภทสถานะ,วันที่แสตมป์เข้า IMC,วันที่แสตมป์เข้า Palliative,หมายเหตุ\n";
+            
+            filteredList.forEach((p, i) => { 
+                const isDischarge = ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(p.action);
                 
-                // วันที่เข้า IMC / PC
+                let admitDateStr = '-';
+                let dischargeDateStr = '-';
+                let los = '-';
+                
+                // คำนวณวันรับเข้าและจำหน่ายอัจฉริยะ
+                const admitObj = isDischarge ? (p.admitTimestamp ? new Date(p.admitTimestamp) : null) : new Date(p.timestamp);
+                if(admitObj) admitDateStr = admitObj.toLocaleDateString('th-TH') + ' ' + admitObj.toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
+
+                if (isDischarge) {
+                    const dischargeObj = new Date(p.timestamp);
+                    dischargeDateStr = dischargeObj.toLocaleDateString('th-TH') + ' ' + dischargeObj.toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
+                    if(admitObj) {
+                        const diffTime = Math.abs(dischargeObj - admitObj);
+                        los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    }
+                } else if(admitObj) {
+                    const todayDate = new Date();
+                    const diffTime = Math.abs(todayDate - admitObj);
+                    los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                }
+                
+                let actionTh = p.action;
+                if(p.action==='OUT_HOME') actionTh='จำหน่ายกลับบ้าน';
+                else if(p.action==='OUT_REFER_OUT') actionTh='Refer Out';
+                else if(p.action==='OUT_REFER_BACK') actionTh='Refer Back';
+                else if(p.action==='OUT_ICU') actionTh='ย้ายลง ICU';
+                else if(p.action==='OUT_WARD') actionTh='ย้าย Ward พิเศษ';
+                else if(p.action==='OUT_DEAD') actionTh='เสียชีวิต';
+                else if(p.action==='IN_NEW') actionTh='รับใหม่';
+                else if(p.action==='IN_TRANSFER') actionTh='รับย้าย';
+                else if(p.action==='ENTER_IMC') actionTh='เข้า IMC';
+                else if(p.action==='ENTER_PALLIATIVE') actionTh='เข้า Palliative';
+                else if(p.action==='CHANGE_GROUP') actionTh='ย้ายกลุ่ม';
+                
                 const imcDate = p.imcArrivalDate ? new Date(p.imcArrivalDate).toLocaleDateString('th-TH') : '-';
                 const pcDate = p.palliativeArrivalDate ? new Date(p.palliativeArrivalDate).toLocaleDateString('th-TH') : '-';
-                const admitDateStr = admitDate.toLocaleDateString('th-TH');
                 
-                csvContent += `${i+1},"${p.hn}","${p.patientName}","${p.age||'-'}","${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':'-'}","${p.diagnosis||'-'}","${p.group}","${p.doctor||'-'}","${p.insurance||'-'}","${admitDateStr}","${los}","${imcDate}","${pcDate}","${p.reason||'-'}"\n`; 
+                // ป้องกันเครื่องหมายคำพูด (") ทำ Excel พัง
+                const cleanName = (p.patientName || '-').replace(/"/g, '""');
+                const cleanDiag = (p.diagnosis || '-').replace(/"/g, '""');
+                const cleanReason = (p.reason || '-').replace(/"/g, '""');
+                
+                csvContent += `${i+1},"${p.hn}","${cleanName}","${p.age||'-'}","${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':'-'}","${cleanDiag}","${p.group}","${p.doctor||'-'}","${p.insurance||'-'}","${admitDateStr}","${dischargeDateStr}","${los}","${actionTh}","${imcDate}","${pcDate}","${cleanReason}"\n`; 
             });
             
             const link = document.createElement("a"); 
             link.setAttribute("href", encodeURI(csvContent)); 
-            link.setAttribute("download", `Ward_Patients_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Ward_Report_${window.currentFilter}_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link); 
             link.click(); 
             document.body.removeChild(link);
