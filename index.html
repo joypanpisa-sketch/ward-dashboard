@@ -178,8 +178,20 @@
                             <button onclick="window.setFilter('Special_Care_PC')" id="tab-Special_Care_PC" class="tab-btn text-purple-600 border-purple-600"><i data-lucide="heart-handshake" class="w-5 h-5 inline mb-1 mr-1"></i> สถิติ Palliative</button>
                         </div>
                         
-                        <div class="flex w-full lg:w-auto gap-3 mb-4">
-                            <div class="relative w-40 shrink-0 hidden md:block">
+                        <div class="flex w-full lg:w-auto gap-3 mb-4 flex-wrap md:flex-nowrap">
+                            <!-- เพิ่ม Filter แผนกตรงนี้ -->
+                            <div class="relative w-full md:w-36 shrink-0 hidden md:block">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="filter" class="w-4 h-4 text-slate-400"></i></div>
+                                <select id="groupFilterSelect" onchange="window.handleSearch()" class="block w-full pl-9 pr-4 py-3 text-sm border border-slate-200 rounded-2xl outline-none focus:border-primary bg-slate-50 cursor-pointer font-medium text-slate-700">
+                                    <option value="all">ทุกแผนก</option>
+                                    <option value="Neuro">Neuro</option>
+                                    <option value="Med">Med</option>
+                                    <option value="IMC">IMC</option>
+                                    <option value="Palliative">Palliative</option>
+                                </select>
+                            </div>
+                            <!-- Date Filter เดิม -->
+                            <div class="relative w-full md:w-40 shrink-0 hidden md:block">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i></div>
                                 <select id="dateFilterSelect" onchange="window.handleSearch()" class="block w-full pl-9 pr-4 py-3 text-sm border border-slate-200 rounded-2xl outline-none focus:border-primary bg-slate-50 cursor-pointer font-medium text-slate-700">
                                     <option value="all">รอบเวลา (ทั้งหมด)</option>
@@ -188,9 +200,10 @@
                                     <option value="year">เฉพาะปีนี้</option>
                                 </select>
                             </div>
+                            <!-- Search เดิม เพิ่มรองรับการหาชื่อโรค -->
                             <div class="relative w-full md:w-64">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="w-5 h-5 text-slate-400"></i></div>
-                                <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา เตียง, HN หรือ ชื่อ...">
+                                <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-3 text-base border border-slate-200 rounded-2xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="ค้นหา HN, ชื่อ, โรค, เตียง...">
                             </div>
                         </div>
                     </div>
@@ -520,13 +533,11 @@
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
     </datalist>
     <datalist id="doctorList">
-        <option value="พญ. แวววรรณ กองมี"></option>
-        <option value="พญ. กุลนิษฐ์ คุ้มชนะ"></option>
-        <option value="นพ. กิตติคุณ  ล้อมวนวงศ์"></option>
-        <option value="พญ. ธนัชพร แสงมณี"></option>
-        <option value="พญ. เสาวรินทร์  เผดิมปราชญ์"></option>
-        <option value="พญ. สิริกันยา  วิเศษคุปต์"></option>
-        <option value="นพ. เจษฎา  ชัยคำมา"></option>
+        <option value="นพ. นรินทร์"></option>
+        <option value="นพ. วุฒิพงษ์"></option>
+        <option value="พญ. สิรินภา"></option>
+        <option value="พญ. กัลยรัตน์"></option>
+        <option value="แพทย์เวร อายุรกรรมประสาท"></option>
         <option value="แพทย์เวร อายุรกรรมทั่วไป"></option>
     </datalist>
 
@@ -547,6 +558,7 @@
         window.currentFilter = 'Active_All';
         window.searchQuery = '';
         window.dateFilter = 'all'; 
+        window.groupFilterVal = 'all'; // <--- เพิ่มตัวแปรสำหรับจำค่าแผนก
         window.isCloudMode = false;
         window.db = null;
         window.collectionRef = null;
@@ -632,11 +644,17 @@
             window.updateDashboard();
         };
 
+        // <--- อัปเดตฟังก์ชันค้นหาให้เช็คค่า Dropdown วอร์ด ด้วย --->
         window.handleSearch = () => { 
             const input = document.getElementById('searchInput');
             if(input) window.searchQuery = input.value.toLowerCase(); 
+            
             const dateSel = document.getElementById('dateFilterSelect');
             if(dateSel) window.dateFilter = dateSel.value;
+
+            const groupSel = document.getElementById('groupFilterSelect');
+            if(groupSel) window.groupFilterVal = groupSel.value;
+
             window.updateDashboard(); 
         };
 
@@ -792,7 +810,18 @@
                 list = window.logs.filter(l => l.action === 'ENTER_PALLIATIVE' && isDateInRange(l.timestamp, window.dateFilter)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             }
 
-            if(window.searchQuery) list = list.filter(p => p.hn?.toLowerCase().includes(window.searchQuery) || p.patientName?.toLowerCase().includes(window.searchQuery) || p.bedNo?.toLowerCase().includes(window.searchQuery));
+            // <--- ตัดเกรดรายชื่อจากการพิมพ์ และ Dropdown วอร์ด --->
+            if(window.groupFilterVal && window.groupFilterVal !== 'all') {
+                list = list.filter(p => p.group === window.groupFilterVal);
+            }
+            if(window.searchQuery) {
+                list = list.filter(p => 
+                    p.hn?.toLowerCase().includes(window.searchQuery) || 
+                    p.patientName?.toLowerCase().includes(window.searchQuery) || 
+                    p.bedNo?.toLowerCase().includes(window.searchQuery) ||
+                    p.diagnosis?.toLowerCase().includes(window.searchQuery)
+                );
+            }
 
             if(list.length === 0) { 
                 if(tbody) tbody.innerHTML = `<tr><td colSpan="6" class="py-20 text-center text-slate-400"><div class="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i data-lucide="search-x" class="w-12 h-12 text-slate-300"></i></div><p class="font-bold text-lg text-slate-500">ไม่มีข้อมูลแสดงผล</p></td></tr>`; 
