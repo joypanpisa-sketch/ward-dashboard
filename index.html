@@ -77,7 +77,6 @@
 </head>
 <body class="text-slate-800 h-screen flex overflow-hidden antialiased selection:bg-primary selection:text-white">
 
-    <!-- Premium Toast Notification -->
     <div id="toast" class="fixed top-6 right-6 z-[120] transform translate-x-full opacity-0 transition-all duration-400 flex items-start gap-4 bg-white/95 backdrop-blur-md border border-slate-100 shadow-float rounded-2xl p-5 min-w-[320px] no-print">
         <div id="toast-icon" class="shrink-0 mt-0.5"></div>
         <div class="flex-1">
@@ -87,7 +86,6 @@
         <button onclick="window.closeToast()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
 
-    <!-- Custom Confirm Modal -->
     <div id="confirmModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[150] p-4 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 text-center p-8">
             <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
@@ -100,7 +98,6 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
     <div id="sidebar" class="w-20 lg:w-[280px] bg-sidebar flex flex-col flex-shrink-0 z-30 shadow-2xl no-print transition-all duration-300">
         <div class="p-6 flex items-center gap-4 text-white h-24">
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4FD1C5] to-primary flex items-center justify-center shrink-0 shadow-lg shadow-[#4FD1C5]/20">
@@ -141,15 +138,15 @@
             </div>
             
             <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                <div id="cloud-status-btn" class="flex items-center gap-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-200 shadow-sm transition-colors duration-300">
-                    <span id="cloud-status-indicator" class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div> ออนไลน์ (Real-time)</span>
+                <div id="cloud-status-btn" class="flex items-center gap-2 text-sm font-bold text-slate-600 bg-slate-100 px-5 py-3 rounded-xl border border-slate-200 shadow-sm transition-colors duration-300" title="ข้อมูลถูกเก็บในเครื่องนี้เท่านั้น">
+                    <span id="cloud-status-indicator" class="flex items-center gap-2"><i data-lucide="hard-drive" class="w-4 h-4 text-slate-500"></i> โหมดออฟไลน์ (ปลอดภัย)</span>
                 </div>
                 
                 <div class="w-px h-8 bg-slate-200 hidden md:block mx-2"></div>
                 <button onclick="window.print()" class="hidden lg:flex items-center justify-center w-12 h-12 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition shadow-sm" title="พิมพ์รายงาน">
                     <i data-lucide="printer" class="w-6 h-6"></i>
                 </button>
-                <button onclick="window.exportToCSV()" class="hidden lg:flex items-center justify-center w-12 h-12 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition shadow-sm" title="ส่งออก CSV">
+                <button onclick="window.exportToCSV()" class="hidden lg:flex items-center justify-center w-12 h-12 text-[#007A86] bg-[#007A86]/10 border border-[#007A86]/20 rounded-xl hover:bg-[#007A86]/20 transition shadow-sm" title="ส่งออกฐานข้อมูลทั้งหมดเป็น CSV">
                     <i data-lucide="download" class="w-6 h-6"></i>
                 </button>
                 <button onclick="window.openModal('entryModal')" class="flex items-center justify-center gap-2 text-base font-bold text-white bg-primary px-8 py-3 rounded-xl hover:bg-primaryHover transition shadow-md hover:shadow-lg">
@@ -158,7 +155,6 @@
             </div>
         </header>
 
-        <!-- Print Header -->
         <div class="print-header">
             <div class="print-header-top">
                 <i data-lucide="activity" style="width: 28px; height: 28px; color: #007A86;"></i>
@@ -173,10 +169,8 @@
             <div id="view-patients" class="flex h-full flex-col animate-fade-in">
                 <div class="bg-white rounded-[2rem] shadow-soft border border-slate-100 flex flex-col h-full md:h-[calc(100vh-150px)] overflow-hidden">
                     
-                    <!-- เครื่องมือจัดการตาราง & กรองข้อมูล -->
                     <div class="px-8 pt-5 border-b border-slate-100 bg-white flex flex-col gap-4 no-print">
                         
-                        <!-- Tabs -->
                         <div class="flex gap-8 text-base font-medium w-full overflow-x-auto whitespace-nowrap scrollbar-hide pb-2">
                             <button onclick="window.setFilter('Active_All')" id="tab-Active_All" class="tab-btn active">ผู้ป่วยครองเตียง (<span id="count-active">0</span>)</button>
                             <button onclick="window.setFilter('Admit_History')" id="tab-Admit_History" class="tab-btn">ประวัติรับเข้า</button>
@@ -185,17 +179,14 @@
                             <button onclick="window.setFilter('Special_Care_PC')" id="tab-Special_Care_PC" class="tab-btn text-purple-600 border-purple-600"><i data-lucide="heart-handshake" class="w-5 h-5 inline mb-1 mr-1"></i> สถิติ Palliative</button>
                         </div>
                         
-                        <!-- Filters -->
                         <div class="flex w-full flex-wrap xl:flex-nowrap gap-3 mb-4 items-center justify-between">
                             
-                            <!-- ป้ายสรุปจำนวนข้อมูล -->
                             <div class="flex items-center text-sm font-bold text-[#007A86] bg-[#007A86]/10 px-4 py-2.5 rounded-xl shrink-0">
                                 <i data-lucide="bar-chart-2" class="w-4 h-4 mr-2"></i> 
                                 <span id="filtered-count-display">พบข้อมูลทั้งหมด: 0 รายการ</span>
                             </div>
                             
                             <div class="flex flex-wrap md:flex-nowrap gap-3 w-full xl:w-auto justify-end">
-                                <!-- กรองตามวอร์ด -->
                                 <div class="relative w-full md:w-36 shrink-0">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="filter" class="w-4 h-4 text-slate-400"></i></div>
                                     <select id="groupFilterSelect" onchange="window.handleSearch()" class="block w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-primary bg-slate-50 cursor-pointer font-medium text-slate-700">
@@ -207,7 +198,6 @@
                                     </select>
                                 </div>
 
-                                <!-- กรองตามเวลา -->
                                 <div class="flex flex-col md:flex-row gap-2">
                                     <div class="relative w-full md:w-44 shrink-0">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i></div>
@@ -220,7 +210,6 @@
                                         </select>
                                     </div>
                                     
-                                    <!-- เลือกวันที่เอง (ซ่อนอยู่) -->
                                     <div id="customDateRange" class="hidden items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 transition-all shrink-0">
                                         <input type="date" id="startDateFilter" onchange="window.handleSearch()" class="py-2 text-sm bg-transparent outline-none text-slate-600 font-medium cursor-pointer" title="วันที่เริ่มต้น">
                                         <span class="text-slate-400">-</span>
@@ -228,7 +217,6 @@
                                     </div>
                                 </div>
 
-                                <!-- ช่องค้นหาอิสระ -->
                                 <div class="relative w-full md:w-64 shrink-0">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i data-lucide="search" class="w-5 h-5 text-slate-400"></i></div>
                                     <input type="text" id="searchInput" onkeyup="window.handleSearch()" class="block w-full pl-12 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-slate-50 focus:bg-white transition-all shadow-sm" placeholder="พิมพ์ HN, ชื่อ หรือ โรค...">
@@ -356,7 +344,6 @@
         </div>
     </div>
 
-    <!-- 1. ENTRY MODAL (Admit) -->
     <div id="entryModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 md:p-6 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 border border-white/20">
             <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center rounded-t-3xl bg-slate-50/50">
@@ -442,7 +429,6 @@
         </div>
     </div>
 
-    <!-- 2. QUICK ACTION MODAL (Manage Flow) -->
     <div id="quickActionModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 md:p-6 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center shadow-md">
@@ -462,7 +448,6 @@
                         
                         <div class="col-span-2 sm:col-span-3 h-px bg-slate-200 my-2"></div>
 
-                        <!-- Clinical Milestones (Stamps) -->
                         <label class="cursor-pointer col-span-2 sm:col-span-3"><input type="radio" name="qaAction" value="ENTER_IMC" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-teal-500 peer-checked:bg-teal-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="check-circle" class="w-6 h-6 text-teal-600"></i><div class="font-bold text-sm text-teal-700">🟢 แสตมป์เข้า IMC <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
                         <label class="cursor-pointer col-span-2 sm:col-span-3"><input type="radio" name="qaAction" value="ENTER_PALLIATIVE" class="peer hidden" onchange="window.toggleQaSelectors()"><div class="rounded-2xl border-2 p-4 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all hover:bg-slate-50 flex flex-col items-center justify-center gap-2"><i data-lucide="heart-handshake" class="w-6 h-6 text-purple-600"></i><div class="font-bold text-sm text-purple-700">🟣 แสตมป์ Palliative <br/><span class="text-xs font-normal text-slate-500">(อยู่ในวอร์ดเดิม)</span></div></div></label>
                     </div>
@@ -480,7 +465,6 @@
         </div>
     </div>
 
-    <!-- 3. EDIT MODAL -->
     <div id="editModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 no-print opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
             <div class="px-8 py-5 border-b border-slate-100 bg-slate-700 text-white rounded-t-3xl font-bold flex items-center justify-between">
@@ -526,103 +510,46 @@
         </div>
     </div>
 
-    <!-- 4. CLOUD CONFIG MODAL -->
-    <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[80] p-4 no-print opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300">
-            <div class="px-8 py-6 bg-slate-800 text-white rounded-t-3xl flex justify-between items-center">
-                <h2 class="text-xl font-bold flex gap-3 items-center"><i data-lucide="cloud" class="w-6 h-6 text-[#4FD1C5]"></i> ตั้งค่า Cloud (Real-time)</h2>
-                <button onclick="window.closeModal('cloudConfigModal')" class="text-slate-400 hover:text-white bg-white/10 p-2 rounded-full transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-8 space-y-4">
-                <p class="text-base text-slate-600 font-medium leading-relaxed">วางรหัส Firebase Config ที่ได้จากระบบเพื่อซิงค์ข้อมูลผู้ป่วยไปโชว์ที่จออื่นได้ทันทีแบบ Real-time</p>
-                <textarea id="firebaseConfigInput" rows="5" class="w-full mt-2 px-5 py-4 rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" placeholder="const firebaseConfig = { ... };"></textarea>
-            </div>
-            <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-between rounded-b-3xl">
-                <button onclick="window.disconnectCloud()" class="text-base font-bold text-rose-600 hover:text-rose-800 transition-colors px-4 py-2 rounded-xl hover:bg-rose-50">กลับไปใช้ออฟไลน์</button>
-                <button onclick="window.connectCloudFromInput()" class="px-8 py-3 text-base font-bold text-white bg-[#008290] hover:bg-[#006B77] rounded-xl shadow-md transition-colors flex items-center gap-2"><i data-lucide="wifi" class="w-5 h-5"></i> เชื่อมต่อ</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Datalists -->
     <datalist id="diagList">
         <option value="Stroke (Ischemic)"></option><option value="Stroke (Hemorrhagic)"></option><option value="TIA"></option><option value="Epilepsy"></option><option value="Pneumonia"></option><option value="Sepsis"></option>
     </datalist>
     <datalist id="doctorList"></datalist>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, query, where, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-        // =========================================================================
-        // 🔴 นำโค้ด Firebase Config ของคุณ มาวางทับตรงนี้ 🔴
-        // =========================================================================
-        const firebaseConfig = {
-  apiKey: "AIzaSyDwhXexpsTbbYMn6hV-MzQ95iDuCo40usc",
-  authDomain: "patient-s-register---ward-6.firebaseapp.com",
-  projectId: "patient-s-register---ward-6",
-  storageBucket: "patient-s-register---ward-6.firebasestorage.app",
-  messagingSenderId: "624738994232",
-  appId: "1:624738994232:web:e9165b9364250f31f63ecd",
-  measurementId: "G-2M9FG83SVM"
-};
-        // =========================================================================
-
+    <script>
+        // ==========================================
+        // ระบบ Local Storage (Offline Mode) ปลอดภัย 100%
+        // ==========================================
         window.TOTAL_BEDS = 28;
         window.logs = []; 
         window.currentFilter = 'Active_All';
         window.searchQuery = '';
         window.dateFilter = 'all'; 
         window.groupFilterVal = 'all'; 
-        window.isCloudMode = false; 
-        window.db = null;
-        window.collectionRef = null;
         window.donutChartInstance = null;
         window.lineChartInstance = null;
         window.diagChartInstance = null;
 
         lucide.createIcons();
 
-        // ระบบตรวจสอบความถูกต้องของโค้ด Firebase อัตโนมัติ
-        if (firebaseConfig.projectId === "your-project") {
-            window.isCloudMode = false;
-            setTimeout(() => {
-                window.showToast('แจ้งเตือนการตั้งค่า', 'กรุณานำโค้ด Firebase ของคุณมาใส่ในไฟล์เพื่อเชื่อมต่อออนไลน์', 'error');
-                const cloudIndicator = document.getElementById('cloud-status-indicator');
-                if(cloudIndicator) {
-                    cloudIndicator.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></div> ออฟไลน์ (รอเปลี่ยนโค้ด)`;
-                    document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-rose-700 bg-rose-50 px-5 py-3 rounded-xl border border-rose-200 shadow-sm transition-colors duration-300";
-                }
-            }, 1000);
-            window.updateDashboard();
-        } else {
-            try {
-                window.isCloudMode = true;
-                const app = initializeApp(firebaseConfig);
-                window.db = getFirestore(app);
-                window.collectionRef = collection(window.db, 'ward_platform_data');
-                
-                onSnapshot(window.collectionRef, (snap) => {
-                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
-                    window.updateDashboard();
-                }, (error) => {
-                    console.error("Firebase Snapshot Error:", error);
-                    if (error.code === 'permission-denied') {
-                        alert("⚠️ เชื่อมต่อฐานข้อมูลถูกปฏิเสธ (Permission Denied)\n\nสาเหตุ: ยังไม่ได้เปิดสิทธิ์ Rules ใน Firebase\n\nวิธีแก้:\n1. ไปที่เว็บ Firebase > เลือกเมนู Firestore Database\n2. ไปที่แท็บ Rules\n3. เปลี่ยนโค้ดเป็น: allow read, write: if true;\n4. กดปุ่ม Publish สีฟ้า");
-                        
-                        window.isCloudMode = false;
-                        document.getElementById('cloud-status-indicator').innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></div> ติดปัญหา Rules`;
-                        document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-amber-700 bg-amber-50 px-5 py-3 rounded-xl border border-amber-200 shadow-sm transition-colors duration-300";
-                        window.updateDashboard();
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase Error:", error);
-                window.isCloudMode = false;
-                window.showToast("ข้อผิดพลาด", "ไม่สามารถเชื่อมต่อฐานข้อมูลได้", "error");
-                window.updateDashboard();
+        // โหลดข้อมูลจากเครื่อง
+        window.loadData = () => {
+            const savedData = localStorage.getItem('wardData');
+            if (savedData) {
+                window.logs = JSON.parse(savedData);
+            } else {
+                window.logs = [];
             }
-        }
+            window.updateDashboard();
+        };
+
+        // บันทึกข้อมูลลงเครื่อง
+        window.saveData = () => {
+            localStorage.setItem('wardData', JSON.stringify(window.logs));
+            window.updateDashboard();
+        };
+
+        // สร้าง ID จำลอง
+        const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 
         window.openModal = (id) => { 
             const el = document.getElementById(id); 
@@ -719,14 +646,12 @@
         window.computePatientFlow = () => {
             const map = {};
             const sorted = [...window.logs].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            const dischargedList = [];
-            
             sorted.forEach(log => {
                 if(['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(log.action)) {
-                    // Extract true admit timestamp for LOS calculation before deleting from map
-                    const trueAdmitTs = map[log.hn] ? (map[log.hn].admitTimestamp || map[log.hn].timestamp) : log.timestamp;
-                    dischargedList.push({...log, admitTimestamp: trueAdmitTs});
+                    const admitRecord = sorted.find(l => l.hn === log.hn && (l.action === 'IN_NEW' || l.action === 'IN_TRANSFER'));
+                    if(admitRecord) {
+                        log.admitDate = admitRecord.timestamp;
+                    }
                     delete map[log.hn];
                 } else if(log.action === 'ENTER_IMC') {
                     if(map[log.hn]) map[log.hn].imcArrivalDate = log.timestamp;
@@ -735,15 +660,12 @@
                 } else if(log.action === 'CHANGE_GROUP') {
                     if(map[log.hn]) map[log.hn].group = log.group;
                 } else {
-                    // IN_NEW or IN_TRANSFER - Preserve older admit timestamp if exists (though rare for same HN without discharge)
-                    map[log.hn] = {...log, admitTimestamp: map[log.hn]?.admitTimestamp || log.timestamp}; 
+                    map[log.hn] = {...log}; 
                 }
             });
-            
             const active = Object.values(map).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             const admittedLogs = window.logs.filter(l => ['IN_NEW', 'IN_TRANSFER'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            const discharged = dischargedList.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
+            const discharged = window.logs.filter(l => ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(l.action)).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             return { active, admittedLogs, discharged };
         };
 
@@ -751,7 +673,7 @@
             const { active, admittedLogs, discharged } = window.computePatientFlow();
             const today = new Date().toISOString().split('T')[0];
 
-            // 1. Update Doctor Datalist
+            // Update Doctor Datalist
             const doctorSet = new Set();
             window.logs.forEach(l => { if (l.doctor && l.doctor.trim() !== '') doctorSet.add(l.doctor.trim()); });
             const doctorListEl = document.getElementById('doctorList');
@@ -767,7 +689,7 @@
             const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
             const setWd = (id, val) => { const el = document.getElementById(id); if(el) el.style.width = val; };
 
-            // 2. Calculate Dashboard Stats
+            // Calculate Dashboard Stats
             let cNeuro=0, cMed=0, cImc=0, cPallia=0;
             active.forEach(p => { 
                 if(p.group==='Neuro') cNeuro++; 
@@ -801,10 +723,7 @@
             setTxt('kpi-home', outH); setTxt('kpi-refer', outRo+outRb); setTxt('kpi-move', outIcu+outWd);
             setTxt('kpi-dead', outDead); setTxt('kpi-imc-today', imcT);
 
-            // 3. Render Charts
             window.renderCharts(cNeuro, cMed, cImc, cPallia, active);
-            
-            // 4. Update Main Table with Advanced Filters
             window.renderTable(active, admittedLogs, discharged);
         };
 
@@ -962,7 +881,7 @@
 
             filteredList.forEach((p, i) => {
                 const dateText = new Date(p.timestamp).toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'numeric'}) + ' ' + new Date(p.timestamp).toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
-                const logId = p.id || p.fbId;
+                const logId = p.id;
 
                 if (window.currentFilter.startsWith('Active')) {
                     let badge = p.action==='IN_TRANSFER'?'<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-bold">รับย้าย</span>':'<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-bold">รับใหม่</span>';
@@ -1045,8 +964,6 @@
         };
 
         window.submitEntryForm = async () => {
-            if (!window.isCloudMode) return window.showToast('ข้อผิดพลาด', 'กรุณาตั้งค่า Firebase ให้เรียบร้อยก่อนบันทึกข้อมูลครับ', 'error');
-
             const form = document.getElementById('entryForm'); if(!form?.checkValidity()) { form?.reportValidity(); return; }
             const hn = document.getElementById('addHn').value;
             const action = document.querySelector('input[name="addType"]:checked').value;
@@ -1058,6 +975,7 @@
             else { const trSelect = document.getElementById('addReasonTransferSelect').value; reason = trSelect === 'อื่นๆ' ? "ย้ายจาก " + document.getElementById('addReasonSpecify').value : "ย้ายจาก " + trSelect; }
 
             const log = { 
+                id: generateId(),
                 hn, 
                 patientName: document.getElementById('addName').value, 
                 age: document.getElementById('addAge').value, 
@@ -1072,17 +990,23 @@
                 date: new Date().toISOString().split('T')[0] 
             };
             
-            try {
-                await addDoc(window.collectionRef, log); 
-                window.closeModal('entryModal'); window.showToast('รับผู้ป่วยสำเร็จ', `HN: ${hn}`);
-            } catch (e) {
-                window.showToast('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
-            }
+            window.logs.push(log);
+            window.saveData();
+            window.closeModal('entryModal'); 
+            window.showToast('รับผู้ป่วยสำเร็จ', `HN: ${hn}`);
+        };
+
+        window.openManageModal = (hn) => {
+            const pt = window.computePatientFlow().active.find(p => p.hn === hn);
+            if(!pt) return;
+            document.getElementById('qa-hn').value = hn;
+            document.getElementById('qa-patient-info').innerText = `${pt.patientName} (HN: ${hn}) • ${pt.group}`;
+            document.getElementById('qa-reason').value = '';
+            document.querySelectorAll('input[name="qaAction"]').forEach(r => r.checked = false);
+            window.openModal('quickActionModal');
         };
 
         window.submitQuickAction = async () => {
-            if (!window.isCloudMode) return window.showToast('ข้อผิดพลาด', 'กรุณาตั้งค่า Firebase ให้เรียบร้อยก่อนบันทึกข้อมูลครับ', 'error');
-
             const form = document.getElementById('quickActionForm'); if(!form?.checkValidity()) { form?.reportValidity(); return; }
             const actNode = document.querySelector('input[name="qaAction"]:checked'); if(!actNode) return window.showToast('แจ้งเตือน', 'กรุณาเลือกประเภทรายการ', 'error');
             const action = actNode.value; const hn = document.getElementById('qa-hn').value;
@@ -1095,22 +1019,19 @@
                 group = groupNode.value;
             }
 
-            const log = { ...pt, group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
-            delete log.fbId; 
-
-            try {
-                await addDoc(window.collectionRef, log); 
-                window.closeModal('quickActionModal'); window.showToast('ทำรายการสำเร็จ', pt.patientName);
-            } catch(e) {
-                window.showToast('ข้อผิดพลาด', 'ไม่สามารถทำรายการได้', 'error');
-            }
+            const log = { ...pt, id: generateId(), group, action, reason: document.getElementById('qa-reason').value || '', timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0] };
+            
+            window.logs.push(log);
+            window.saveData();
+            window.closeModal('quickActionModal'); 
+            window.showToast('ทำรายการสำเร็จ', pt.patientName);
         };
 
         window.openEditModal = (id) => {
-            const log = window.logs.find(p => p.id === id || p.fbId === id);
+            const log = window.logs.find(p => p.id === id);
             if(!log) return;
             document.getElementById('editHn').value = log.hn;
-            document.getElementById('editLogId').value = log.id || log.fbId;
+            document.getElementById('editLogId').value = log.id;
             document.getElementById('editName').value = log.patientName;
             document.getElementById('editAge').value = log.age;
             document.getElementById('editSex').value = log.sex;
@@ -1127,8 +1048,6 @@
         };
 
         window.submitEditForm = async () => {
-            if (!window.isCloudMode) return window.showToast('ข้อผิดพลาด', 'กรุณาตั้งค่า Firebase ให้เรียบร้อยก่อนบันทึกข้อมูลครับ', 'error');
-
             const hn = document.getElementById('editHn').value;
             const logId = document.getElementById('editLogId').value;
             const name = document.getElementById('editName').value;
@@ -1142,23 +1061,21 @@
             const timeVal = document.getElementById('editTime').value;
             const newTimestamp = new Date(`${dateVal}T${timeVal}:00`).toISOString();
             
-            try {
-                const q = query(window.collectionRef, where("hn", "==", hn)); 
-                const snap = await getDocs(q);
-                snap.forEach(d => {
-                    const data = d.data();
-                    let updates = { patientName: name, age: age, sex: sex, diagnosis: diag, doctor: doctor, insurance: insurance };
-                    if (d.id === logId || data.id === logId || data.fbId === logId) {
-                        updates.timestamp = newTimestamp;
-                        updates.date = dateVal;
+            window.logs = window.logs.map(log => {
+                if (log.hn === hn) {
+                    let updatedLog = { ...log, patientName: name, age: age, sex: sex, diagnosis: diag, doctor: doctor, insurance: insurance };
+                    if (log.id === logId) {
+                        updatedLog.timestamp = newTimestamp;
+                        updatedLog.date = dateVal;
                     }
-                    updateDoc(d.ref, updates);
-                });
-                window.closeModal('editModal'); 
-                window.showToast('สำเร็จ', 'อัปเดตข้อมูลและเวลาเรียบร้อยแล้ว');
-            } catch(e) {
-                window.showToast('ข้อผิดพลาด', 'ไม่สามารถอัปเดตข้อมูลได้', 'error');
-            }
+                    return updatedLog;
+                }
+                return log;
+            });
+            
+            window.saveData();
+            window.closeModal('editModal'); 
+            window.showToast('สำเร็จ', 'อัปเดตข้อมูลและเวลาเรียบร้อยแล้ว');
         };
 
         window.pendingDelete = null;
@@ -1176,185 +1093,69 @@
         };
 
         window.executeAction = async () => {
-            if (!window.isCloudMode) return window.showToast('ข้อผิดพลาด', 'กรุณาตั้งค่า Firebase ให้เรียบร้อยก่อนทำรายการ', 'error');
             if (!window.pendingDelete) return;
             
             const { type, id } = window.pendingDelete;
             
-            try {
-                if (type === 'patient') {
-                    const q = query(window.collectionRef, where("hn", "==", id)); 
-                    const snap = await getDocs(q);
-                    snap.forEach(d => deleteDoc(d.ref));
-                    window.showToast('ลบสำเร็จ', 'ข้อมูลถูกจัดการออกจากระบบแล้ว');
-                } else if (type === 'log') {
-                    const logToDel = window.logs.find(l => l.id === id || l.fbId === id);
-                    if(logToDel && logToDel.fbId) {
-                        await deleteDoc(doc(window.db, 'ward_platform_data', logToDel.fbId));
-                    }
-                    window.showToast('ลบสำเร็จ', 'ลบประวัติรายการแล้ว');
-                }
-            } catch (e) {
-                window.showToast('ข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
+            if (type === 'patient') {
+                window.logs = window.logs.filter(log => log.hn !== id);
+                window.showToast('ลบสำเร็จ', 'ข้อมูลถูกจัดการออกจากระบบแล้ว');
+            } else if (type === 'log') {
+                window.logs = window.logs.filter(log => log.id !== id);
+                window.showToast('ลบสำเร็จ', 'ลบประวัติรายการแล้ว');
             }
             
+            window.saveData();
             window.pendingDelete = null;
             window.closeModal('confirmModal');
         };
 
+        // ==========================================
+        // 📥 ปุ่ม Export ดึงข้อมูลฐานข้อมูลทั้งหมด 100%
+        // ==========================================
         window.exportToCSV = () => {
-            const { active, admittedLogs, discharged } = window.computePatientFlow();
-            let baseList = [];
+            if(window.logs.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออก', 'error'); return; }
             
-            // เลือกฐานข้อมูลตั้งต้นตามแท็บที่กด
-            if (window.currentFilter.startsWith('Active')) baseList = active;
-            else if (window.currentFilter === 'Admit_History') baseList = admittedLogs;
-            else if (window.currentFilter === 'Discharged_History') baseList = discharged;
-            else if (window.currentFilter === 'Special_Care_IMC') baseList = window.logs.filter(l => l.action === 'ENTER_IMC').sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            else if (window.currentFilter === 'Special_Care_PC') baseList = window.logs.filter(l => l.action === 'ENTER_PALLIATIVE').sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            let filteredList = baseList;
-
-            // 1. กรองตามแผนก
-            if (window.groupFilterVal && window.groupFilterVal !== 'all') {
-                filteredList = filteredList.filter(p => p.group === window.groupFilterVal);
-            }
-
-            // 2. กรองตามเวลา
-            if (window.dateFilter && window.dateFilter !== 'all') {
-                const today = new Date();
-                filteredList = filteredList.filter(p => {
-                    const logDate = new Date(p.timestamp);
-                    if (window.dateFilter === 'today') return logDate.toDateString() === today.toDateString();
-                    if (window.dateFilter === 'month') return logDate.getMonth() === today.getMonth() && logDate.getFullYear() === today.getFullYear();
-                    if (window.dateFilter === 'year') return logDate.getFullYear() === today.getFullYear();
-                    if (window.dateFilter === 'custom') {
-                        const start = document.getElementById('startDateFilter').value;
-                        const end = document.getElementById('endDateFilter').value;
-                        const logDateOnly = p.date;
-                        if (start && end) return logDateOnly >= start && logDateOnly <= end;
-                        if (start) return logDateOnly >= start;
-                        if (end) return logDateOnly <= end;
-                    }
-                    return true;
-                });
-            }
-
-            // 3. กรองตามคำค้นหา
-            if (window.searchQuery) {
-                const q = window.searchQuery.toLowerCase();
-                filteredList = filteredList.filter(p => 
-                    (p.hn && p.hn.toLowerCase().includes(q)) || 
-                    (p.patientName && p.patientName.toLowerCase().includes(q)) || 
-                    (p.diagnosis && p.diagnosis.toLowerCase().includes(q))
-                );
-            }
-
-            if(filteredList.length === 0) { window.showToast('แจ้งเตือน', 'ไม่มีข้อมูลสำหรับส่งออกในหมวดหมู่นี้', 'error'); return; }
+            // หัวข้อตารางที่รวมข้อมูลทุกฟิลด์ในระบบอย่างละเอียด
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,วันที่บันทึก,เวลาบันทึก,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัยโรค,วอร์ดหลัก,แพทย์เจ้าของไข้,สิทธิการรักษา,ประเภทกิจกรรม (Action),รายละเอียด/สาเหตุ\n";
             
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFFลำดับ,HN,ชื่อ-นามสกุล,อายุ,เพศ,การวินิจฉัย,กลุ่ม,แพทย์เจ้าของไข้,สิทธิการรักษา,วันที่รับเข้า,วันที่จำหน่าย,วันนอน (LOS),ประเภทสถานะ,วันที่แสตมป์เข้า IMC,วันที่แสตมป์เข้า Palliative,หมายเหตุ\n";
+            // เรียงลำดับจากอดีตไปหาปัจจุบันตามลำดับเวลาคีย์จริง
+            const sortedLogs = [...window.logs].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
             
-            filteredList.forEach((p, i) => { 
-                const isDischarge = ['OUT_HOME', 'OUT_REFER_OUT', 'OUT_REFER_BACK', 'OUT_ICU', 'OUT_WARD', 'OUT_DEAD'].includes(p.action);
+            sortedLogs.forEach((p, i) => { 
+                const logDate = new Date(p.timestamp);
+                const dateStr = logDate.toLocaleDateString('th-TH');
+                const timeStr = logDate.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
                 
-                let admitDateStr = '-';
-                let dischargeDateStr = '-';
-                let los = '-';
+                // แปลงตัวย่อกิจกรรมเป็นภาษาไทยให้อ่านง่ายใน Excel
+                let actionText = p.action;
+                if(p.action === 'IN_NEW') actionText = 'รับใหม่ (New Admit)';
+                else if(p.action === 'IN_TRANSFER') actionText = 'รับย้าย (Transfer In)';
+                else if(p.action === 'OUT_HOME') actionText = 'จำหน่ายกลับบ้าน';
+                else if(p.action === 'OUT_REFER_OUT') actionText = 'Refer Out (ส่งต่อภายนอก)';
+                else if(p.action === 'OUT_REFER_BACK') actionText = 'Refer Back (ส่งกลับ)';
+                else if(p.action === 'OUT_ICU') actionText = 'ย้ายลงวิกฤต (ICU)';
+                else if(p.action === 'OUT_WARD') actionText = 'ย้ายวอร์ดพิเศษ/วอร์ดอื่น';
+                else if(p.action === 'OUT_DEAD') actionText = 'เสียชีวิต';
+                else if(p.action === 'ENTER_IMC') actionText = '🟢 แสตมป์เข้ากลุ่ม IMC';
+                else if(p.action === 'ENTER_PALLIATIVE') actionText = '🟣 แสตมป์เข้า Palliative Care';
                 
-                // คำนวณวันรับเข้าและจำหน่ายอัจฉริยะ
-                const admitObj = isDischarge ? (p.admitTimestamp ? new Date(p.admitTimestamp) : null) : new Date(p.timestamp);
-                if(admitObj) admitDateStr = admitObj.toLocaleDateString('th-TH') + ' ' + admitObj.toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
-
-                if (isDischarge) {
-                    const dischargeObj = new Date(p.timestamp);
-                    dischargeDateStr = dischargeObj.toLocaleDateString('th-TH') + ' ' + dischargeObj.toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'});
-                    if(admitObj) {
-                        const diffTime = Math.abs(dischargeObj - admitObj);
-                        los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    }
-                } else if(admitObj) {
-                    const todayDate = new Date();
-                    const diffTime = Math.abs(todayDate - admitObj);
-                    los = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                }
-                
-                let actionTh = p.action;
-                if(p.action==='OUT_HOME') actionTh='จำหน่ายกลับบ้าน';
-                else if(p.action==='OUT_REFER_OUT') actionTh='Refer Out';
-                else if(p.action==='OUT_REFER_BACK') actionTh='Refer Back';
-                else if(p.action==='OUT_ICU') actionTh='ย้ายลง ICU';
-                else if(p.action==='OUT_WARD') actionTh='ย้าย Ward พิเศษ';
-                else if(p.action==='OUT_DEAD') actionTh='เสียชีวิต';
-                else if(p.action==='IN_NEW') actionTh='รับใหม่';
-                else if(p.action==='IN_TRANSFER') actionTh='รับย้าย';
-                else if(p.action==='ENTER_IMC') actionTh='เข้า IMC';
-                else if(p.action==='ENTER_PALLIATIVE') actionTh='เข้า Palliative';
-                else if(p.action==='CHANGE_GROUP') actionTh='ย้ายกลุ่ม';
-                
-                const imcDate = p.imcArrivalDate ? new Date(p.imcArrivalDate).toLocaleDateString('th-TH') : '-';
-                const pcDate = p.palliativeArrivalDate ? new Date(p.palliativeArrivalDate).toLocaleDateString('th-TH') : '-';
-                
-                // ป้องกันเครื่องหมายคำพูด (") ทำ Excel พัง
-                const cleanName = (p.patientName || '-').replace(/"/g, '""');
-                const cleanDiag = (p.diagnosis || '-').replace(/"/g, '""');
-                const cleanReason = (p.reason || '-').replace(/"/g, '""');
-                
-                csvContent += `${i+1},"${p.hn}","${cleanName}","${p.age||'-'}","${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':'-'}","${cleanDiag}","${p.group}","${p.doctor||'-'}","${p.insurance||'-'}","${admitDateStr}","${dischargeDateStr}","${los}","${actionTh}","${imcDate}","${pcDate}","${cleanReason}"\n`; 
+                csvContent += `${i+1},"${dateStr}","${timeStr} น.","${p.hn||'-'}","${p.patientName||'-'}","${p.age||'-'}","${p.sex==='M'?'ชาย':p.sex==='F'?'หญิง':'-'}","${p.diagnosis||'-'}","${p.group||'-'}","${p.doctor||'-'}","${p.insurance||'-'}","${actionText}","${p.reason||'-'}"\n`; 
             });
             
             const link = document.createElement("a"); 
             link.setAttribute("href", encodeURI(csvContent)); 
-            link.setAttribute("download", `Ward_Report_${window.currentFilter}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Ward_Master_Database_Backup_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link); 
             link.click(); 
             document.body.removeChild(link);
+            window.showToast('สำเร็จ', 'ส่งออกฐานข้อมูลดิบทั้งหมดเรียบร้อยแล้ว');
         };
 
         document.getElementById('print-date').innerText = `ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'})} เวลา ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit', minute:'2-digit'})} น.`;
 
-        // ระบบตรวจสอบความถูกต้องของโค้ด Firebase อัตโนมัติ (ย้ายมาไว้ล่างสุดเพื่อให้ฟังก์ชันทั้งหมดโหลดเสร็จก่อน)
-        if (firebaseConfig.projectId === "your-project") {
-            window.isCloudMode = false;
-            // หน่วงเวลาเล็กน้อยเพื่อให้ UI พร้อมก่อนแสดง Toast
-            setTimeout(() => {
-                window.showToast('แจ้งเตือนการตั้งค่า', 'กรุณานำโค้ด Firebase ของคุณมาใส่ในไฟล์เพื่อเชื่อมต่อออนไลน์', 'error');
-                const cloudIndicator = document.getElementById('cloud-status-indicator');
-                if(cloudIndicator) {
-                    cloudIndicator.innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></div> ออฟไลน์ (รอเปลี่ยนโค้ด)`;
-                    document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-rose-700 bg-rose-50 px-5 py-3 rounded-xl border border-rose-200 shadow-sm transition-colors duration-300";
-                }
-            }, 1000);
-            window.updateDashboard();
-        } else {
-            try {
-                window.isCloudMode = true;
-                const app = initializeApp(firebaseConfig);
-                window.db = getFirestore(app);
-                window.collectionRef = collection(window.db, 'ward_platform_data');
-                
-                onSnapshot(window.collectionRef, (snap) => {
-                    window.logs = snap.docs.map(d => ({...d.data(), fbId: d.id}));
-                    window.updateDashboard();
-                }, (error) => {
-                    console.error("Firebase Snapshot Error:", error);
-                    if (error.code === 'permission-denied') {
-                        // แจ้งเตือนอย่างชัดเจนหากยังไม่ได้แก้ Rules
-                        alert("⚠️ เชื่อมต่อฐานข้อมูลถูกปฏิเสธ (Permission Denied)\n\nสาเหตุ: ยังไม่ได้เปิดสิทธิ์ Rules ใน Firebase\n\nวิธีแก้:\n1. ไปที่เว็บ Firebase > เลือกเมนู Firestore Database\n2. ไปที่แท็บ Rules\n3. เปลี่ยนโค้ดเป็น: allow read, write: if true;\n4. กดปุ่ม Publish สีฟ้า");
-                        
-                        window.isCloudMode = false;
-                        document.getElementById('cloud-status-indicator').innerHTML = `<div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm"></div> ติดปัญหา Rules`;
-                        document.getElementById('cloud-status-btn').className = "flex items-center gap-2 text-sm font-bold text-amber-700 bg-amber-50 px-5 py-3 rounded-xl border border-amber-200 shadow-sm transition-colors duration-300";
-                        window.updateDashboard();
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase Error:", error);
-                window.isCloudMode = false;
-                window.showToast("ข้อผิดพลาด", "ไม่สามารถเชื่อมต่อฐานข้อมูลได้", "error");
-                window.updateDashboard();
-            }
-        }
-
+        // เริ่มการทำงานระบบโดยการโหลดข้อมูล
+        window.loadData();
     </script>
 </body>
 </html>
